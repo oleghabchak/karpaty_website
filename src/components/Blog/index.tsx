@@ -5,13 +5,13 @@ import blogData from "./blogData";
 const Blog = () => {
   return (
     <section
-      id="blog"
+      id="news"
       className="bg-gray-light dark:bg-bg-color-dark py-16 md:py-20 lg:py-28"
     >
       <div className="container">
         <SectionTitle
-          title="Our Latest Blogs"
-          paragraph="There are many variations of passages of Lorem Ipsum available but the majority have suffered alteration in some form."
+          title="Новини"
+          paragraph="Останні новини та події ФК «Уличне»."
           center
         />
 

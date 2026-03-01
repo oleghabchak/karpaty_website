@@ -1,6 +1,6 @@
 {
-  "name": "startup-nextjs-template",
-  "version": "2.2.1",
+  "name": "fk-ulychne-website",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",

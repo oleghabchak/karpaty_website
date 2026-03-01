@@ -9,6 +9,9 @@ const nextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [{ source: "/blog", destination: "/news", permanent: true }];
+  },
 };
 
 module.exports = nextConfig;

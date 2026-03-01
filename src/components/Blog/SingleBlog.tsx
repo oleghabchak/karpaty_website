@@ -37,14 +37,14 @@ const SingleBlog = ({ blog }: { blog: Blog }) => {
               </div>
               <div className="w-full">
                 <h4 className="text-dark mb-1 text-sm font-medium dark:text-white">
-                  By {author.name}
+                  {author.name}
                 </h4>
                 <p className="text-body-color text-xs">{author.designation}</p>
               </div>
             </div>
             <div className="inline-block">
               <h4 className="text-dark mb-1 text-sm font-medium dark:text-white">
-                Date
+                Дата
               </h4>
               <p className="text-body-color text-xs">{publishDate}</p>
             </div>
