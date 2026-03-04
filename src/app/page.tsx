@@ -13,7 +13,8 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "ФК «Уличне» — Офіційний сайт",
-  description: "Офіційний сайт футбольного клубу «Уличне». Новини, матчі, команда, турнірна таблиця.",
+  description:
+    "Офіційний сайт футбольного клубу «Уличне». Новини, матчі, команда, турнірна таблиця.",
 };
 
 export default function Home() {
@@ -32,4 +33,4 @@ export default function Home() {
       <Contact />
     </>
   );
-};
+}
