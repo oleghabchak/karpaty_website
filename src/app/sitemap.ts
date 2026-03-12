@@ -15,7 +15,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/news`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
     { url: `${base}/club`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
     { url: `${base}/photo`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.7 },
-    { url: `${base}/shop`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.6 },
+    { url: `${base}/history`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.6 },
     { url: `${base}/contact`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
     { url: `${base}/u19`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.7 },
     { url: `${base}/academy`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.6 },

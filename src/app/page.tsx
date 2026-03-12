@@ -4,7 +4,7 @@ import NextMatch from "@/components/Matches/NextMatch";
 import LastMatch from "@/components/Matches/LastMatch";
 import TableTeaser from "@/components/Matches/TableTeaser";
 import CalendarTeaser from "@/components/Matches/CalendarTeaser";
-import Blog from "@/components/Blog";
+import NewsSection from "@/components/News";
 import TeamTeaser from "@/components/Team/TeamTeaser";
 import Video from "@/components/Video";
 import Brands from "@/components/Brands";
@@ -25,7 +25,7 @@ export default function Home() {
       <NextMatch />
       <LastMatch />
       <TableTeaser />
-      <Blog />
+      <NewsSection />
       <CalendarTeaser />
       <TeamTeaser />
       <Video />
