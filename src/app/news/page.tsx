@@ -1,6 +1,6 @@
-import SingleBlog from "@/components/Blog/SingleBlog";
 import Breadcrumb from "@/components/Common/Breadcrumb";
-import { getBlogPosts } from "@/lib/blog";
+import NewsListWithLoadMore from "@/components/News/NewsListWithLoadMore";
+import { getPostsPage } from "@/lib/posts";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -10,8 +10,12 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
+const PAGE_SIZE = 9;
+
 export default async function NewsPage() {
-  const posts = await getBlogPosts();
+  const { posts: initialPosts, nextCursor: initialNextCursor } =
+    await getPostsPage(PAGE_SIZE);
+
   return (
     <>
       <Breadcrumb
@@ -20,16 +24,10 @@ export default async function NewsPage() {
       />
       <section className="pt-4 pb-16 md:pt-8 md:pb-20">
         <div className="container">
-          <div className="-mx-4 flex flex-wrap justify-center">
-            {posts.map((blog) => (
-              <div
-                key={blog.id}
-                className="w-full px-4 md:w-2/3 lg:w-1/2 xl:w-1/3"
-              >
-                <SingleBlog blog={blog} />
-              </div>
-            ))}
-          </div>
+          <NewsListWithLoadMore
+            initialPosts={initialPosts}
+            initialNextCursor={initialNextCursor}
+          />
         </div>
       </section>
     </>
