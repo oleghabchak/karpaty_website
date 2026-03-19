@@ -109,6 +109,7 @@ const Header = () => {
                       <li key={index} className="group relative">
                         {menuItem.path ? (
                           <Link
+                            onClick={() => setNavbarOpen(false)}
                             href={menuItem.path}
                             className={`flex py-2 text-base lg:mr-0 lg:inline-flex lg:px-0 lg:py-6 ${
                               usePathName === menuItem.path
@@ -143,6 +144,7 @@ const Header = () => {
                             >
                               {menuItem.submenu.map((submenuItem, index) => (
                                 <Link
+                                  onClick={() => setNavbarOpen(false)}
                                   href={submenuItem.path}
                                   key={index}
                                   className="text-dark hover:text-primary block rounded-sm py-2.5 text-sm lg:px-3 dark:text-white/70 dark:hover:text-white"

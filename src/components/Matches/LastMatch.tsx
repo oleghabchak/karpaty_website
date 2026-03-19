@@ -1,7 +1,10 @@
 import Link from "next/link";
-import { lastMatch } from "@/data/matchesData";
+import { getMatchesFeatured } from "@/lib/matches";
 
-const LastMatch = () => {
+const LastMatch = async () => {
+  const featured = await getMatchesFeatured();
+  const lastMatch = featured.lastMatch;
+
   return (
     <section className="bg-body-color/5 py-16 dark:bg-white/5 md:py-20">
       <div className="container">
@@ -10,7 +13,8 @@ const LastMatch = () => {
         </h2>
         <div className="rounded-lg border border-body-color/10 bg-white p-6 dark:border-white/10 dark:bg-gray-dark md:p-8">
           <p className="mb-4 text-sm text-body-color dark:text-body-color-dark">
-            {lastMatch.date} / 18 тур
+            {lastMatch.date}
+            {lastMatch.tour != null ? ` / ${lastMatch.tour} тур` : ""}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8">
             <span className="text-lg font-bold text-black dark:text-white md:text-xl">

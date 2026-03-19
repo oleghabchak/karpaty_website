@@ -294,3 +294,46 @@ export async function createPost(input: CreatePostInput) {
     updatedAt: new Date().toISOString(),
   });
 }
+
+/**
+ * Client-side post creation. Must be called from the browser with an authenticated
+ * admin user (admin@gmail.com) so Firestore rules allow the write.
+ */
+export async function createPostClient(input: CreatePostInput): Promise<Post> {
+  if (!isFirebaseConfigured || !db) {
+    throw new Error("Firebase is not configured for writing posts.");
+  }
+
+  const baseSlug = slugify(input.title);
+  const slug = await ensureUniqueSlug(baseSlug);
+  const publishDateValue = input.publishDate ? new Date(input.publishDate) : new Date();
+  const publishedAt = Number.isNaN(publishDateValue.getTime())
+    ? new Date().toISOString()
+    : publishDateValue.toISOString();
+
+  const post = {
+    slug,
+    title: input.title.trim(),
+    excerpt: input.excerpt.trim(),
+    image: normalizeGoogleDriveImageUrl(input.image),
+    bodyMarkdown: input.bodyMarkdown.trim(),
+    author: {
+      name: input.author?.name?.trim() || DEFAULT_AUTHOR.name,
+      image: normalizeGoogleDriveImageUrl(input.author?.image ?? DEFAULT_AUTHOR.image),
+      designation: input.author?.designation?.trim() || DEFAULT_AUTHOR.designation,
+    },
+    tags: input.tags,
+    publishDate: formatPublishDate(publishedAt),
+    publishedAt,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  };
+
+  await setDoc(doc(db, POSTS_COLLECTION, slug), post);
+
+  return mapDocToPost(slug, {
+    ...post,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  });
+}

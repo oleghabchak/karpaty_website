@@ -1,7 +1,9 @@
 import Link from "next/link";
-import { upcomingMatches } from "@/data/matchesData";
+import { getUpcomingMatches } from "@/lib/matches";
 
-const CalendarTeaser = () => {
+const CalendarTeaser = async () => {
+  const upcomingMatches = await getUpcomingMatches();
+
   return (
     <section className="bg-body-color/5 py-16 dark:bg-white/5 md:py-20">
       <div className="container">

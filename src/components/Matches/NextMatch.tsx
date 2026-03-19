@@ -1,7 +1,10 @@
 import Link from "next/link";
-import { nextMatch } from "@/data/matchesData";
+import { getMatchesFeatured } from "@/lib/matches";
 
-const NextMatch = () => {
+const NextMatch = async () => {
+  const featured = await getMatchesFeatured();
+  const nextMatch = featured.nextMatch;
+
   return (
     <section className="bg-white py-16 dark:bg-gray-dark md:py-20">
       <div className="container">

@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
   clearAdminSession,
@@ -12,30 +11,24 @@ function getField(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
 }
 
-export async function loginAdmin(formData: FormData) {
+export async function loginAdminPanel(formData: FormData) {
   const configuredSecret = getAdminSecret();
   const secret = getField(formData, "secret");
 
   if (!configuredSecret) {
-    redirect("/admin/news?error=missing-secret");
+    redirect("/admin?error=missing-secret");
   }
 
   if (secret !== configuredSecret) {
-    redirect("/admin/news?error=invalid-secret");
+    redirect("/admin?error=invalid-secret");
   }
 
   await createAdminSession();
-  redirect("/admin/news");
+  redirect("/admin");
 }
 
-export async function logoutAdmin() {
+export async function logoutAdminPanel() {
   await clearAdminSession();
-  redirect("/admin/news");
+  redirect("/admin");
 }
 
-export async function revalidatePost(slug: string) {
-  revalidatePath("/");
-  revalidatePath("/news");
-  revalidatePath(`/news/${slug}`);
-  revalidatePath("/admin/news");
-}

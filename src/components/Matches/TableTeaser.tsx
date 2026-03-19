@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { tableData } from "@/data/tableData";
+import { getStandingsRows } from "@/lib/standings";
 
-const TableTeaser = () => {
+const TableTeaser = async () => {
   const columns = ["№", "Клуб", "І", "П", "Н", "П", "РМ", "О"];
+  const rows = await getStandingsRows();
 
   return (
     <section className="bg-white py-16 dark:bg-gray-dark md:py-20">
@@ -33,7 +34,7 @@ const TableTeaser = () => {
               </tr>
             </thead>
             <tbody>
-              {tableData.slice(0, 8).map((row) => (
+              {rows.slice(0, 8).map((row) => (
                 <tr
                   key={row.position}
                   className={`border-b border-body-color/10 dark:border-white/10 ${

@@ -1,14 +1,15 @@
 "use client";
 
-import { useMemo, useState, type ChangeEvent } from "react";
-import { useFormStatus } from "react-dom";
+import { useMemo, useState, type ChangeEvent, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import MarkdownContent from "@/components/News/MarkdownContent";
 import PostCard from "@/components/News/PostCard";
+import { createPostClient } from "@/lib/posts";
+import { revalidatePost } from "@/app/admin/news/actions";
 import { formatPublishDate, normalizeGoogleDriveImageUrl, splitTags } from "@/lib/post-utils";
 import type { Post } from "@/types/post";
 
 type AdminNewsEditorProps = {
-  action: (formData: FormData) => void;
   createdSlug?: string;
   cloudName?: string;
   uploadPreset?: string;
@@ -18,26 +19,12 @@ const defaultAuthorName = "Прес-служба ФК Уличне";
 const defaultAuthorImage = "/images/blog/author-03.png";
 const defaultAuthorDesignation = "Офіційно";
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
-
-  return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="bg-primary hover:bg-primary/90 rounded-xs px-6 py-3 text-sm font-medium text-white duration-300 disabled:cursor-not-allowed disabled:opacity-70"
-    >
-      {pending ? "Збереження..." : "Опублікувати новину"}
-    </button>
-  );
-}
-
 export default function AdminNewsEditor({
-  action,
   createdSlug,
   cloudName,
   uploadPreset,
 }: AdminNewsEditorProps) {
+  const router = useRouter();
   const [title, setTitle] = useState("");
   const [excerpt, setExcerpt] = useState("");
   const [image, setImage] = useState("");
@@ -49,8 +36,42 @@ export default function AdminNewsEditor({
   const [bodyMarkdown, setBodyMarkdown] = useState("");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const canUploadToCloudinary = Boolean(cloudName && uploadPreset);
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setSubmitError(null);
+    if (!title.trim() || !excerpt.trim() || !image.trim() || !bodyMarkdown.trim()) {
+      setSubmitError("Заповніть усі обов'язкові поля.");
+      return;
+    }
+    setSaving(true);
+    try {
+      const post = await createPostClient({
+        title: title.trim(),
+        excerpt: excerpt.trim(),
+        image: image.trim(),
+        bodyMarkdown: bodyMarkdown.trim(),
+        tags: splitTags(tags),
+        publishDate: publishDate || undefined,
+        author: {
+          name: authorName.trim(),
+          image: authorImage.trim(),
+          designation: authorDesignation.trim(),
+        },
+      });
+      await revalidatePost(post.slug);
+      router.push(`/admin/news?created=${post.slug}`);
+    } catch (err) {
+      console.error(err);
+      setSubmitError("Не вдалося зберегти новину в Firestore. Перевірте, що ви увійшли як admin@gmail.com.");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   async function handleImageUpload(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -151,7 +172,7 @@ export default function AdminNewsEditor({
           ) : null}
         </div>
 
-        <form action={action} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="text-dark mb-2 block text-sm font-medium dark:text-white">
               Заголовок
@@ -297,7 +318,17 @@ export default function AdminNewsEditor({
             />
           </div>
 
-          <SubmitButton />
+          {submitError ? (
+            <p className="text-sm text-red-600 dark:text-red-300">{submitError}</p>
+          ) : null}
+
+          <button
+            type="submit"
+            disabled={saving}
+            className="bg-primary hover:bg-primary/90 rounded-xs px-6 py-3 text-sm font-medium text-white duration-300 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {saving ? "Збереження..." : "Опублікувати новину"}
+          </button>
         </form>
       </div>
 

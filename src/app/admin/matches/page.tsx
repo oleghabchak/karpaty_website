@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import AdminNewsEditor from "@/components/Admin/AdminNewsEditor";
-import FirebaseAdminAuthGate from "@/components/Admin/FirebaseAdminAuthGate";
+import AdminMatchesEditor from "@/components/Admin/AdminMatchesEditor";
 import { getAdminSecret, isAdminAuthenticated } from "@/lib/admin-session";
-import { loginAdmin, logoutAdmin } from "./actions";
+import { getMatchesFeatured } from "@/lib/matches";
+import { loginAdminMatches, logoutAdminMatches } from "./actions";
+import FirebaseAdminAuthGate from "@/components/Admin/FirebaseAdminAuthGate";
 
 export const metadata: Metadata = {
-  title: "Адмін новин | ФК «Уличне»",
-  description: "Службова сторінка для створення новин ФК «Уличне».",
+  title: "Адмін матчів | ФК «Уличне»",
+  description: "Службова сторінка для редагування prev/next та календару матчів (Firebase).",
 };
 
 export const dynamic = "force-dynamic";
@@ -16,10 +16,10 @@ const errorMessages: Record<string, string> = {
   "missing-secret": "Додайте `ADMIN_NEWS_SECRET` у змінні середовища, щоб увімкнути доступ до адмінки.",
   "invalid-secret": "Невірний секретний код. Спробуйте ще раз.",
   unauthorized: "Сесія завершилась. Увійдіть ще раз.",
-  "missing-fields": "Заповніть усі обов'язкові поля перед публікацією.",
+  "invalid-payload": "Некоректні дані матчів.",
 };
 
-type AdminNewsPageProps = {
+type AdminMatchesPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
@@ -27,29 +27,26 @@ function getFirstValue(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-export default async function AdminNewsPage({
-  searchParams,
-}: AdminNewsPageProps) {
+export default async function AdminMatchesPage({ searchParams }: AdminMatchesPageProps) {
   const params = await searchParams;
   const error = getFirstValue(params.error);
-  const created = getFirstValue(params.created);
+  const saved = getFirstValue(params.saved);
+  const reset = getFirstValue(params.reset);
+
   const hasSecret = Boolean(getAdminSecret());
   const isAuthenticated = await isAdminAuthenticated();
-  const cloudName =
-    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ||
-    process.env.CLOUDINARY_CLOUD_NAME;
-  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+
+  const featured = await getMatchesFeatured();
 
   return (
     <section className="relative z-10 overflow-hidden pb-16 pt-32 md:pb-20 lg:pb-28 lg:pt-[160px]">
       <div className="container">
         <div className="mx-auto mb-10 max-w-3xl text-center">
           <h1 className="text-dark mb-4 text-3xl font-bold dark:text-white sm:text-4xl">
-            Адмін новин
+            Адмін матчів
           </h1>
           <p className="text-body-color dark:text-body-color-dark">
-            Створюйте новини, перевіряйте Markdown-прев&apos;ю в реальному часі та
-            публікуйте матеріали у Firestore.
+            Редагуйте `prev/next` та список майбутніх матчів. Зміни збережуться у Firestore.
           </p>
         </div>
 
@@ -59,12 +56,15 @@ export default async function AdminNewsPage({
           </div>
         ) : null}
 
-        {created ? (
+        {saved ? (
           <div className="mx-auto mb-6 max-w-3xl rounded-xs border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700 dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-200">
-            Новину успішно створено.{" "}
-            <Link href={`/news/${created}`} className="font-medium underline">
-              Переглянути публікацію
-            </Link>
+            Матчі успішно збережено.
+          </div>
+        ) : null}
+
+        {reset ? (
+          <div className="mx-auto mb-6 max-w-3xl rounded-xs border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700 dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-200">
+            Дані скинуто до значень за замовчуванням.
           </div>
         ) : null}
 
@@ -74,14 +74,13 @@ export default async function AdminNewsPage({
               Адмін секрет не налаштовано
             </h2>
             <p className="text-body-color dark:text-body-color-dark">
-              Додайте `ADMIN_NEWS_SECRET` у `.env.local`, перезапустіть сервер і
-              відкрийте цю сторінку знову.
+              Додайте `ADMIN_NEWS_SECRET` у `.env.local`, перезапустіть сервер і відкрийте цю сторінку знову.
             </p>
           </div>
         ) : isAuthenticated ? (
           <>
-            <div className="mb-6 flex justify-end">
-              <form action={logoutAdmin}>
+            <div className="mb-6 flex flex-wrap justify-end gap-3">
+              <form action={logoutAdminMatches}>
                 <button
                   type="submit"
                   className="border-stroke text-dark hover:border-primary hover:text-primary rounded-xs border px-4 py-2 text-sm font-medium duration-300 dark:border-white/10 dark:text-white"
@@ -90,12 +89,9 @@ export default async function AdminNewsPage({
                 </button>
               </form>
             </div>
+
             <FirebaseAdminAuthGate>
-              <AdminNewsEditor
-                createdSlug={created}
-                cloudName={cloudName}
-                uploadPreset={uploadPreset}
-              />
+              <AdminMatchesEditor initialFeatured={featured} />
             </FirebaseAdminAuthGate>
           </>
         ) : (
@@ -104,9 +100,9 @@ export default async function AdminNewsPage({
               Вхід до адмінки
             </h2>
             <p className="text-body-color dark:text-body-color-dark mb-6">
-              Введіть секретний код, щоб відкрити сторінку створення новин.
+              Введіть секретний код, щоб відкрити сторінку редагування матчів.
             </p>
-            <form action={loginAdmin} className="space-y-4">
+            <form action={loginAdminMatches} className="space-y-4">
               <div>
                 <label className="text-dark mb-2 block text-sm font-medium dark:text-white">
                   Секретний код
@@ -131,3 +127,4 @@ export default async function AdminNewsPage({
     </section>
   );
 }
+
