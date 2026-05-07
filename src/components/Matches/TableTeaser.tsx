@@ -7,7 +7,7 @@ const TableTeaser = async () => {
 
   return (
     <section className="bg-white py-16 dark:bg-gray-dark md:py-20">
-      <div className="container">
+      {/* <div className="container">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <h2 className="text-2xl font-bold text-black dark:text-white md:text-3xl">
             Турнірна таблиця
@@ -56,7 +56,7 @@ const TableTeaser = async () => {
             </tbody>
           </table>
         </div>
-      </div>
+      </div> */}
     </section>
   );
 };

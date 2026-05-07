@@ -3,6 +3,7 @@ import Hero from "@/components/Hero";
 import NextMatch from "@/components/Matches/NextMatch";
 import LastMatch from "@/components/Matches/LastMatch";
 import TableTeaser from "@/components/Matches/TableTeaser";
+import FriendlyMatchesTeaser from "@/components/Matches/FriendlyMatchesTeaser";
 import CalendarTeaser from "@/components/Matches/CalendarTeaser";
 import NewsSection from "@/components/News";
 import TeamTeaser from "@/components/Team/TeamTeaser";
@@ -25,6 +26,7 @@ export default function Home() {
       <NextMatch />
       <LastMatch />
       <TableTeaser />
+      <FriendlyMatchesTeaser />
       <NewsSection />
       <CalendarTeaser />
       <TeamTeaser />

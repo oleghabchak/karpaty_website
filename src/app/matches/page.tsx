@@ -1,5 +1,6 @@
 import Breadcrumb from "@/components/Common/Breadcrumb";
 import TableTeaser from "@/components/Matches/TableTeaser";
+import FriendlyMatchesTeaser from "@/components/Matches/FriendlyMatchesTeaser";
 import CalendarTeaser from "@/components/Matches/CalendarTeaser";
 import NextMatch from "@/components/Matches/NextMatch";
 import LastMatch from "@/components/Matches/LastMatch";
@@ -22,6 +23,7 @@ export default function MatchesPage() {
       <section id="table">
         <TableTeaser />
       </section>
+      <FriendlyMatchesTeaser />
       <CalendarTeaser />
     </>
   );
