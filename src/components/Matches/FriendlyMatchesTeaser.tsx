@@ -57,13 +57,13 @@ const FriendlyMatchesTeaser = async () => {
             <table className="w-full min-w-[640px] text-left text-sm">
               <thead>
                 <tr className="border-b border-body-color/10 bg-body-color/5 dark:border-white/10 dark:bg-white/5">
-                  <th className="px-3 py-3 font-semibold text-black dark:text-white">Дата</th>
-                  <th className="px-3 py-3 font-semibold text-black dark:text-white">Час</th>
-                  <th className="px-3 py-3 font-semibold text-black dark:text-white">Господарі</th>
-                  <th className="px-3 py-3 text-center font-semibold text-black dark:text-white">
+                  <th className="p-2 font-semibold text-black dark:text-white">Дата</th>
+                  <th className="p-2 font-semibold text-black dark:text-white">Час</th>
+                  <th className="p-2 font-semibold text-black dark:text-white">Господарі</th>
+                  <th className="p-2 text-center font-semibold text-black dark:text-white">
                     Рахунок
                   </th>
-                  <th className="px-3 py-3 font-semibold text-black dark:text-white">Гості</th>
+                  <th className="p-2 font-semibold text-black dark:text-white">Гості</th>
                 </tr>
               </thead>
               <tbody>
@@ -75,24 +75,24 @@ const FriendlyMatchesTeaser = async () => {
                       key={row.id}
                       className="border-b border-body-color/10 dark:border-white/10"
                     >
-                      <td className="px-3 py-2 text-body-color dark:text-body-color-dark">
+                      <td className="p-2 text-body-color dark:text-body-color-dark">
                         {row.date}
                       </td>
-                      <td className="px-3 py-2 text-body-color dark:text-body-color-dark">
+                      <td className="p-2 text-body-color dark:text-body-color-dark">
                         {row.time}
                       </td>
                       <td
-                        className={`px-3 py-2 font-medium text-black dark:text-white ${
+                        className={`p-2 font-medium text-black dark:text-white ${
                           hlHome ? "bg-primary/10 dark:bg-primary/20" : ""
                         }`}
                       >
                         {row.homeTeam}
                       </td>
-                      <td className="px-3 py-2 text-center font-semibold tabular-nums text-black dark:text-white">
+                      <td className="p-2 text-center font-semibold tabular-nums text-black dark:text-white">
                         {row.homeScore} : {row.awayScore}
                       </td>
                       <td
-                        className={`px-3 py-2 font-medium text-black dark:text-white ${
+                        className={`p-2 font-medium text-black dark:text-white ${
                           hlAway ? "bg-primary/10 dark:bg-primary/20" : ""
                         }`}
                       >

@@ -10,6 +10,10 @@ export const nextMatch: Match = {
 };
 
 export const lastMatch: Match = {
+  id: 0,
+  date: "",
+  homeTeam: "",
+  awayTeam: "",
 };
 
 export const upcomingMatches: Match[] = [

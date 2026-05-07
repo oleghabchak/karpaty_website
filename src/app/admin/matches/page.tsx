@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import AdminMatchesEditor from "@/components/Admin/AdminMatchesEditor";
+import AdminNavBar from "@/components/Admin/AdminNavBar";
 import { getAdminSecret, isAdminAuthenticated } from "@/lib/admin-session";
 import { getMatchesFeatured } from "@/lib/matches";
-import { loginAdminMatches, logoutAdminMatches } from "./actions";
+import { loginAdminMatches } from "./actions";
 import FirebaseAdminAuthGate from "@/components/Admin/FirebaseAdminAuthGate";
 
 export const metadata: Metadata = {
@@ -79,18 +80,9 @@ export default async function AdminMatchesPage({ searchParams }: AdminMatchesPag
           </div>
         ) : isAuthenticated ? (
           <>
-            <div className="mb-6 flex flex-wrap justify-end gap-3">
-              <form action={logoutAdminMatches}>
-                <button
-                  type="submit"
-                  className="border-stroke text-dark hover:border-primary hover:text-primary rounded-xs border px-4 py-2 text-sm font-medium duration-300 dark:border-white/10 dark:text-white"
-                >
-                  Вийти
-                </button>
-              </form>
-            </div>
+            <AdminNavBar />
 
-            <FirebaseAdminAuthGate>
+            <FirebaseAdminAuthGate hideFirebaseSignOut>
               <AdminMatchesEditor initialFeatured={featured} />
             </FirebaseAdminAuthGate>
           </>

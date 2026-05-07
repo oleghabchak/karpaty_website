@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import AdminStandingsEditor from "@/components/Admin/AdminStandingsEditor";
+import AdminNavBar from "@/components/Admin/AdminNavBar";
 import { getAdminSecret, isAdminAuthenticated } from "@/lib/admin-session";
 import { getStandingsRows } from "@/lib/standings";
-import { loginAdminTable, logoutAdminTable } from "./actions";
+import { loginAdminTable } from "./actions";
 import FirebaseAdminAuthGate from "@/components/Admin/FirebaseAdminAuthGate";
 
 export const metadata: Metadata = {
@@ -78,18 +79,9 @@ export default async function AdminTablePage({ searchParams }: AdminTablePagePro
           </div>
         ) : isAuthenticated ? (
           <>
-            <div className="mb-6 flex justify-end gap-3">
-              <form action={logoutAdminTable}>
-                <button
-                  type="submit"
-                  className="border-stroke text-dark hover:border-primary hover:text-primary rounded-xs border px-4 py-2 text-sm font-medium duration-300 dark:border-white/10 dark:text-white"
-                >
-                  Вийти
-                </button>
-              </form>
-            </div>
+            <AdminNavBar />
 
-            <FirebaseAdminAuthGate>
+            <FirebaseAdminAuthGate hideFirebaseSignOut>
               <AdminStandingsEditor initialRows={rows} />
             </FirebaseAdminAuthGate>
           </>

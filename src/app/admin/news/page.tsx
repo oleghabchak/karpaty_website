@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import AdminNewsEditor from "@/components/Admin/AdminNewsEditor";
+import AdminNavBar from "@/components/Admin/AdminNavBar";
 import FirebaseAdminAuthGate from "@/components/Admin/FirebaseAdminAuthGate";
 import { getAdminSecret, isAdminAuthenticated } from "@/lib/admin-session";
-import { loginAdmin, logoutAdmin } from "./actions";
+import { loginAdmin } from "./actions";
 
 export const metadata: Metadata = {
   title: "Адмін новин | ФК «Уличне»",
@@ -80,17 +81,8 @@ export default async function AdminNewsPage({
           </div>
         ) : isAuthenticated ? (
           <>
-            <div className="mb-6 flex justify-end">
-              <form action={logoutAdmin}>
-                <button
-                  type="submit"
-                  className="border-stroke text-dark hover:border-primary hover:text-primary rounded-xs border px-4 py-2 text-sm font-medium duration-300 dark:border-white/10 dark:text-white"
-                >
-                  Вийти
-                </button>
-              </form>
-            </div>
-            <FirebaseAdminAuthGate>
+            <AdminNavBar />
+            <FirebaseAdminAuthGate hideFirebaseSignOut>
               <AdminNewsEditor
                 createdSlug={created}
                 cloudName={cloudName}

@@ -32,3 +32,9 @@ export async function logoutAdminPanel() {
   redirect("/admin");
 }
 
+/** Clears cookie session; use with client-side Firebase signOut for one "Вийти" UX. */
+export async function logoutAdminEverywhere() {
+  await clearAdminSession();
+  redirect("/admin");
+}
+

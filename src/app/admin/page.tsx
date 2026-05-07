@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { loginAdminPanel, logoutAdminPanel } from "./actions";
+import { loginAdminPanel } from "./actions";
+import AdminNavBar from "@/components/Admin/AdminNavBar";
 import { getAdminSecret, isAdminAuthenticated } from "@/lib/admin-session";
 
 export const metadata: Metadata = {
@@ -59,16 +60,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           </div>
         ) : isAuthenticated ? (
           <>
-            <div className="mb-6 flex flex-wrap items-center justify-end gap-3">
-              <form action={logoutAdminPanel}>
-                <button
-                  type="submit"
-                  className="border-stroke text-dark hover:border-primary hover:text-primary rounded-xs border px-4 py-2 text-sm font-medium duration-300 dark:border-white/10 dark:text-white"
-                >
-                  Вийти
-                </button>
-              </form>
-            </div>
+            <AdminNavBar />
 
             <div className="mx-auto grid max-w-4xl gap-4 sm:grid-cols-2">
               <Link

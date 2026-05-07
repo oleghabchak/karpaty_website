@@ -8,9 +8,14 @@ const ADMIN_EMAIL = "admin@gmail.com";
 
 type FirebaseAdminAuthGateProps = {
   children: ReactNode;
+  /** When true, hide the in-gate Firebase sign-out (e.g. unified "Вийти" in admin header). */
+  hideFirebaseSignOut?: boolean;
 };
 
-export default function FirebaseAdminAuthGate({ children }: FirebaseAdminAuthGateProps) {
+export default function FirebaseAdminAuthGate({
+  children,
+  hideFirebaseSignOut = false,
+}: FirebaseAdminAuthGateProps) {
   const [authed, setAuthed] = useState(false);
   const [password, setPassword] = useState("");
   const [pending, setPending] = useState(false);
@@ -50,15 +55,17 @@ export default function FirebaseAdminAuthGate({ children }: FirebaseAdminAuthGat
   if (authed) {
     return (
       <div className="space-y-4">
-        <div className="flex flex-wrap items-center justify-end gap-3">
-          <button
-            type="button"
-            onClick={handleSignOut}
-            className="border-stroke text-dark hover:border-primary hover:text-primary rounded-xs border px-4 py-2 text-sm font-medium duration-300 dark:border-white/10 dark:text-white"
-          >
-            Вийти з Firebase
-          </button>
-        </div>
+        {!hideFirebaseSignOut ? (
+          <div className="flex flex-wrap items-center justify-end gap-3">
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="border-stroke text-dark hover:border-primary hover:text-primary rounded-xs border px-4 py-2 text-sm font-medium duration-300 dark:border-white/10 dark:text-white"
+            >
+              Вийти з Firebase
+            </button>
+          </div>
+        ) : null}
         {children}
       </div>
     );

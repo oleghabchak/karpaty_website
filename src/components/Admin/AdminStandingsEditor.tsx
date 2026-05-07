@@ -9,6 +9,36 @@ type AdminStandingsEditorProps = {
   initialRows: TableRow[];
 };
 
+function n0(v: unknown): number {
+  return typeof v === "number" && Number.isFinite(v) ? v : 0;
+}
+
+function normalizeRow(row: TableRow): TableRow {
+  return {
+    position: n0(row.position),
+    team: typeof row.team === "string" ? row.team : "",
+    played: n0(row.played),
+    won: n0(row.won),
+    draw: n0(row.draw),
+    lost: n0(row.lost),
+    goalsFor: n0(row.goalsFor),
+    goalsAgainst: n0(row.goalsAgainst),
+    points: n0(row.points),
+  };
+}
+
+/** Для `type=number` колонки не робити вужчими за ~3.5rem — інакше стрілки спінера перекривають кліки по полю. */
+const inputCell =
+  "border-stroke dark:bg-dark dark:border-white/10 dark:text-white min-w-0 w-full rounded-xs border p-2 text-sm outline-hidden focus:border-primary";
+
+const statTh =
+  "min-w-[2.5rem] whitespace-nowrap p-2 font-semibold text-black dark:text-white";
+const statTd = "min-w-[2.5rem] p-2 align-middle";
+
+const clubTh =
+  "min-w-[18rem] p-2 font-semibold text-black dark:text-white md:min-w-[22rem]";
+const clubTd = "min-w-[18rem] p-2 align-middle md:min-w-[22rem]";
+
 function makeEmptyRow(nextPosition: number): TableRow {
   return {
     position: nextPosition,
@@ -24,7 +54,7 @@ function makeEmptyRow(nextPosition: number): TableRow {
 }
 
 export default function AdminStandingsEditor({ initialRows }: AdminStandingsEditorProps) {
-  const [rows, setRows] = useState<TableRow[]>(initialRows);
+  const [rows, setRows] = useState<TableRow[]>(() => initialRows.map(normalizeRow));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -70,164 +100,190 @@ export default function AdminStandingsEditor({ initialRows }: AdminStandingsEdit
 
   return (
     <div className="mx-auto max-w-6xl">
-      <div className="space-y-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-dark text-2xl font-semibold dark:text-white">Турнірна таблиця</h2>
-            <p className="text-body-color mt-1 text-sm dark:text-body-color-dark">
-              Редагуйте рядки та збережіть. Дані зберігаються у Firestore.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={addRow}
-            className="rounded-xs border border-primary bg-white px-4 py-2 text-sm font-medium text-primary hover:bg-primary/10"
-          >
-            Додати рядок
-          </button>
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h2 className="text-dark text-2xl font-semibold dark:text-white">Турнірна таблиця</h2>
+          <p className="text-body-color mt-1 text-sm dark:text-body-color-dark">
+            Редагуйте рядки та збережіть. Дані зберігаються у Firestore.
+          </p>
         </div>
+      </div>
 
-        {error ? (
-          <div className="rounded-xs border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200">
-            {error}
-          </div>
-        ) : null}
+      {error ? (
+        <div className="mb-3 rounded-xs border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200">
+          {error}
+        </div>
+      ) : null}
 
-        <div className="space-y-4">
-          {rows.map((row, index) => (
-            <div
-              key={`${row.position}-${index}`}
-              className="rounded-xs border border-body-color/10 bg-white p-4 dark:border-white/10 dark:bg-gray-dark"
-            >
-              <div className="mb-3 flex items-center justify-between gap-3">
-                <div className="text-sm font-semibold text-black dark:text-white">
-                  Рядок #{index + 1}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => removeRow(index)}
-                  className="rounded-xs border border-red-200 bg-white px-3 py-1 text-sm font-medium text-red-600 hover:bg-red-50 dark:border-red-500/30 dark:text-red-300"
-                >
-                  Видалити
-                </button>
-              </div>
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={addRow}
+          className="rounded-xs border border-primary bg-white px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary/10"
+        >
+          Додати рядок
+        </button>
+        <button
+          type="button"
+          onClick={handleReset}
+          disabled={saving}
+          className="rounded-xs border border-primary bg-white px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-70"
+        >
+          {saving ? "…" : "Скинути до дефолту"}
+        </button>
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={saving}
+          className="bg-primary hover:bg-primary/90 rounded-xs px-4 py-1.5 text-sm font-medium text-white duration-300 disabled:cursor-not-allowed disabled:opacity-70"
+        >
+          {saving ? "Збереження…" : "Зберегти таблицю"}
+        </button>
+      </div>
 
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <label className="text-sm">
-                  <span className="mb-1 block text-body-color dark:text-body-color-dark">№</span>
+      <div className="overflow-x-auto rounded-lg border border-body-color/10 dark:border-white/10">
+        <table className="w-full min-w-[960px] text-left text-sm">
+          <thead>
+            <tr className="border-b border-body-color/10 bg-body-color/5 dark:border-white/10 dark:bg-white/5">
+              <th className={statTh}>№</th>
+              <th className={clubTh}>Клуб</th>
+              <th className={statTh}>І</th>
+              <th className={statTh}>П</th>
+              <th className={statTh}>Н</th>
+              <th className={statTh}>П</th>
+              <th className="min-w-[7rem] p-2 font-semibold text-black dark:text-white">РМ</th>
+              <th className={statTh}>О</th>
+              <th className="w-24 min-w-[5rem] p-2 text-right font-semibold text-black dark:text-white">
+                Дії
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, index) => (
+              <tr
+                key={`${row.position}-${index}`}
+                className="border-b border-body-color/10 dark:border-white/10"
+              >
+                <td className={statTd}>
                   <input
                     type="number"
+                    inputMode="numeric"
                     value={row.position}
-                    onChange={(e) => updateRow(index, { position: Number(e.target.value) })}
-                    className="border-stroke dark:bg-dark dark:border-white/10 dark:text-white w-full rounded-xs border px-3 py-2 outline-hidden focus:border-primary"
+                    onChange={(e) => {
+                      const parsed = Number(e.target.value);
+                      updateRow(index, { position: Number.isFinite(parsed) ? parsed : 0 });
+                    }}
+                    className={inputCell}
                   />
-                </label>
-
-                <label className="text-sm">
-                  <span className="mb-1 block text-body-color dark:text-body-color-dark">Клуб</span>
+                </td>
+                <td className={clubTd}>
                   <input
                     value={row.team}
                     onChange={(e) => updateRow(index, { team: e.target.value })}
-                    className="border-stroke dark:bg-dark dark:border-white/10 dark:text-white w-full rounded-xs border px-3 py-2 outline-hidden focus:border-primary"
+                    className={inputCell}
                   />
-                </label>
-
-                <label className="text-sm">
-                  <span className="mb-1 block text-body-color dark:text-body-color-dark">І</span>
+                </td>
+                <td className={statTd}>
                   <input
                     type="number"
+                    inputMode="numeric"
                     value={row.played}
-                    onChange={(e) => updateRow(index, { played: Number(e.target.value) })}
-                    className="border-stroke dark:bg-dark dark:border-white/10 dark:text-white w-full rounded-xs border px-3 py-2 outline-hidden focus:border-primary"
+                    onChange={(e) => {
+                      const parsed = Number(e.target.value);
+                      updateRow(index, { played: Number.isFinite(parsed) ? parsed : 0 });
+                    }}
+                    className={inputCell}
                   />
-                </label>
-
-                <label className="text-sm">
-                  <span className="mb-1 block text-body-color dark:text-body-color-dark">П</span>
+                </td>
+                <td className={statTd}>
                   <input
                     type="number"
+                    inputMode="numeric"
                     value={row.won}
-                    onChange={(e) => updateRow(index, { won: Number(e.target.value) })}
-                    className="border-stroke dark:bg-dark dark:border-white/10 dark:text-white w-full rounded-xs border px-3 py-2 outline-hidden focus:border-primary"
+                    onChange={(e) => {
+                      const parsed = Number(e.target.value);
+                      updateRow(index, { won: Number.isFinite(parsed) ? parsed : 0 });
+                    }}
+                    className={inputCell}
                   />
-                </label>
-
-                <label className="text-sm">
-                  <span className="mb-1 block text-body-color dark:text-body-color-dark">Н</span>
+                </td>
+                <td className={statTd}>
                   <input
                     type="number"
+                    inputMode="numeric"
                     value={row.draw}
-                    onChange={(e) => updateRow(index, { draw: Number(e.target.value) })}
-                    className="border-stroke dark:bg-dark dark:border-white/10 dark:text-white w-full rounded-xs border px-3 py-2 outline-hidden focus:border-primary"
+                    onChange={(e) => {
+                      const parsed = Number(e.target.value);
+                      updateRow(index, { draw: Number.isFinite(parsed) ? parsed : 0 });
+                    }}
+                    className={inputCell}
                   />
-                </label>
-
-                <label className="text-sm">
-                  <span className="mb-1 block text-body-color dark:text-body-color-dark">П</span>
+                </td>
+                <td className={statTd}>
                   <input
                     type="number"
+                    inputMode="numeric"
                     value={row.lost}
-                    onChange={(e) => updateRow(index, { lost: Number(e.target.value) })}
-                    className="border-stroke dark:bg-dark dark:border-white/10 dark:text-white w-full rounded-xs border px-3 py-2 outline-hidden focus:border-primary"
+                    onChange={(e) => {
+                      const parsed = Number(e.target.value);
+                      updateRow(index, { lost: Number.isFinite(parsed) ? parsed : 0 });
+                    }}
+                    className={inputCell}
                   />
-                </label>
-
-                <label className="text-sm">
-                  <span className="mb-1 block text-body-color dark:text-body-color-dark">Голи (за)</span>
+                </td>
+                <td className="p-2 align-middle">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      value={row.goalsFor}
+                      onChange={(e) => {
+                        const parsed = Number(e.target.value);
+                        updateRow(index, { goalsFor: Number.isFinite(parsed) ? parsed : 0 });
+                      }}
+                      className={inputCell}
+                      aria-label="Голи за"
+                    />
+                    <span className="shrink-0 text-body-color dark:text-body-color-dark">—</span>
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      value={row.goalsAgainst}
+                      onChange={(e) => {
+                        const parsed = Number(e.target.value);
+                        updateRow(index, { goalsAgainst: Number.isFinite(parsed) ? parsed : 0 });
+                      }}
+                      className={inputCell}
+                      aria-label="Голи проти"
+                    />
+                  </div>
+                </td>
+                <td className={statTd}>
                   <input
                     type="number"
-                    value={row.goalsFor}
-                    onChange={(e) => updateRow(index, { goalsFor: Number(e.target.value) })}
-                    className="border-stroke dark:bg-dark dark:border-white/10 dark:text-white w-full rounded-xs border px-3 py-2 outline-hidden focus:border-primary"
-                  />
-                </label>
-
-                <label className="text-sm">
-                  <span className="mb-1 block text-body-color dark:text-body-color-dark">Голи (проти)</span>
-                  <input
-                    type="number"
-                    value={row.goalsAgainst}
-                    onChange={(e) => updateRow(index, { goalsAgainst: Number(e.target.value) })}
-                    className="border-stroke dark:bg-dark dark:border-white/10 dark:text-white w-full rounded-xs border px-3 py-2 outline-hidden focus:border-primary"
-                  />
-                </label>
-
-                <label className="text-sm sm:col-span-2">
-                  <span className="mb-1 block text-body-color dark:text-body-color-dark">О</span>
-                  <input
-                    type="number"
+                    inputMode="numeric"
                     value={row.points}
-                    onChange={(e) => updateRow(index, { points: Number(e.target.value) })}
-                    className="border-stroke dark:bg-dark dark:border-white/10 dark:text-white w-full rounded-xs border px-3 py-2 outline-hidden focus:border-primary"
+                    onChange={(e) => {
+                      const parsed = Number(e.target.value);
+                      updateRow(index, { points: Number.isFinite(parsed) ? parsed : 0 });
+                    }}
+                    className={inputCell}
                   />
-                </label>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="flex flex-wrap items-center justify-center gap-3">
-          <button
-            type="button"
-            onClick={handleReset}
-            disabled={saving}
-            className="rounded-xs border border-primary bg-white px-4 py-2 text-sm font-medium text-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            {saving ? "..." : "Скинути до дефолту"}
-          </button>
-
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={saving}
-            className="bg-primary hover:bg-primary/90 rounded-xs px-6 py-3 text-sm font-medium text-white duration-300 disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            {saving ? "Збереження..." : "Зберегти таблицю"}
-          </button>
-        </div>
+                </td>
+                <td className="p-2 text-right align-middle">
+                  <button
+                    type="button"
+                    onClick={() => removeRow(index)}
+                    className="rounded-xs border border-red-200 bg-white p-2 text-xs font-medium text-red-600 hover:bg-red-50 dark:border-red-500/30 dark:text-red-300"
+                  >
+                    Видалити
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
 }
-
