@@ -37,7 +37,7 @@ const RAW_RUNTIME_STATE =
           ["eslint", "virtual:8025b370285a2688eb8fc6bae8ff179481db154f458d084cfe5d40e9209387cff2fd8153b5ccb1327a1705c3105f753aa80ae434a4654d7dbedb9ba0b993de88#npm:9.39.4"],\
           ["eslint-config-next", "virtual:8025b370285a2688eb8fc6bae8ff179481db154f458d084cfe5d40e9209387cff2fd8153b5ccb1327a1705c3105f753aa80ae434a4654d7dbedb9ba0b993de88#npm:15.1.6"],\
           ["firebase", "npm:12.10.0"],\
-          ["firebase-admin", "npm:13.7.0"],\
+          ["firebase-admin", "npm:13.9.0"],\
           ["fk-ulychne-website", "workspace:."],\
           ["next", "virtual:8025b370285a2688eb8fc6bae8ff179481db154f458d084cfe5d40e9209387cff2fd8153b5ccb1327a1705c3105f753aa80ae434a4654d7dbedb9ba0b993de88#npm:16.0.10"],\
           ["next-themes", "virtual:8025b370285a2688eb8fc6bae8ff179481db154f458d084cfe5d40e9209387cff2fd8153b5ccb1327a1705c3105f753aa80ae434a4654d7dbedb9ba0b993de88#npm:0.2.1"],\
@@ -4534,8 +4534,8 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["firebase-admin", [\
-      ["npm:13.7.0", {\
-        "packageLocation": "./.yarn/cache/firebase-admin-npm-13.7.0-6fb45b5dde-7d3ccda2e5.zip/node_modules/firebase-admin/",\
+      ["npm:13.9.0", {\
+        "packageLocation": "./.yarn/cache/firebase-admin-npm-13.9.0-f2ae877a0a-9336d541a9.zip/node_modules/firebase-admin/",\
         "packageDependencies": [\
           ["@fastify/busboy", "npm:3.2.0"],\
           ["@firebase/database-compat", "npm:2.1.1"],\
@@ -4544,11 +4544,11 @@ const RAW_RUNTIME_STATE =
           ["@google-cloud/storage", "npm:7.19.0"],\
           ["farmhash-modern", "npm:1.1.0"],\
           ["fast-deep-equal", "npm:3.1.3"],\
-          ["firebase-admin", "npm:13.7.0"],\
+          ["firebase-admin", "npm:13.9.0"],\
           ["google-auth-library", "npm:10.6.2"],\
           ["jsonwebtoken", "npm:9.0.3"],\
           ["jwks-rsa", "npm:3.2.2"],\
-          ["node-forge", "npm:1.3.3"],\
+          ["node-forge", "npm:1.4.0"],\
           ["uuid", "npm:11.1.0"]\
         ],\
         "linkType": "HARD"\
@@ -4567,7 +4567,7 @@ const RAW_RUNTIME_STATE =
           ["eslint", "virtual:8025b370285a2688eb8fc6bae8ff179481db154f458d084cfe5d40e9209387cff2fd8153b5ccb1327a1705c3105f753aa80ae434a4654d7dbedb9ba0b993de88#npm:9.39.4"],\
           ["eslint-config-next", "virtual:8025b370285a2688eb8fc6bae8ff179481db154f458d084cfe5d40e9209387cff2fd8153b5ccb1327a1705c3105f753aa80ae434a4654d7dbedb9ba0b993de88#npm:15.1.6"],\
           ["firebase", "npm:12.10.0"],\
-          ["firebase-admin", "npm:13.7.0"],\
+          ["firebase-admin", "npm:13.9.0"],\
           ["fk-ulychne-website", "workspace:."],\
           ["next", "virtual:8025b370285a2688eb8fc6bae8ff179481db154f458d084cfe5d40e9209387cff2fd8153b5ccb1327a1705c3105f753aa80ae434a4654d7dbedb9ba0b993de88#npm:16.0.10"],\
           ["next-themes", "virtual:8025b370285a2688eb8fc6bae8ff179481db154f458d084cfe5d40e9209387cff2fd8153b5ccb1327a1705c3105f753aa80ae434a4654d7dbedb9ba0b993de88#npm:0.2.1"],\
@@ -6887,10 +6887,10 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["node-forge", [\
-      ["npm:1.3.3", {\
-        "packageLocation": "./.yarn/cache/node-forge-npm-1.3.3-6f469a1f76-f41c31b929.zip/node_modules/node-forge/",\
+      ["npm:1.4.0", {\
+        "packageLocation": "./.yarn/cache/node-forge-npm-1.4.0-646822c506-d70fd76976.zip/node_modules/node-forge/",\
         "packageDependencies": [\
-          ["node-forge", "npm:1.3.3"]\
+          ["node-forge", "npm:1.4.0"]\
         ],\
         "linkType": "HARD"\
       }]\
