@@ -17,14 +17,14 @@ function getServiceAccount() {
   const jsonPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
   const jsonStr = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
 
+  if (jsonStr) {
+    return JSON.parse(jsonStr.trim());
+  }
+
   if (jsonPath) {
     const resolved = path.isAbsolute(jsonPath) ? jsonPath : path.join(process.cwd(), jsonPath);
     const raw = fs.readFileSync(resolved, "utf8");
     return JSON.parse(raw);
-  }
-
-  if (jsonStr) {
-    return JSON.parse(jsonStr.trim());
   }
 
   return null;
