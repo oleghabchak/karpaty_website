@@ -22,7 +22,8 @@ import {
 import type { CreatePostInput, Post, PostAuthor } from "@/types/post";
 
 const POSTS_COLLECTION = "posts";
-const LOG = process.env.NODE_ENV === "development";
+const LOG = process.env.NODE_ENV === "development" || process.env.VERCEL === "1";
+const LOG_PREFIX = "[News/Posts]";
 
 const DEFAULT_AUTHOR: PostAuthor = {
   name: "Прес-служба ФК Уличне",
@@ -104,10 +105,17 @@ function getFallbackPosts(maxPosts?: number) {
 
 export async function getPosts(options?: { maxPosts?: number }): Promise<Post[]> {
   const maxPosts = options?.maxPosts;
+  if (LOG) {
+    console.log(`${LOG_PREFIX} getPosts:start`, {
+      maxPosts: maxPosts ?? null,
+      isFirebaseConfigured,
+      hasDb: Boolean(db),
+    });
+  }
 
   if (!isFirebaseConfigured || !db) {
     if (LOG) {
-      console.log("[Posts] Using static fallback:", {
+      console.log(`${LOG_PREFIX} getPosts:fallback_no_firebase`, {
         isFirebaseConfigured,
         hasDb: Boolean(db),
       });
@@ -124,15 +132,32 @@ export async function getPosts(options?: { maxPosts?: number }): Promise<Post[]>
     const snapshot = await getDocs(postsQuery);
 
     if (snapshot.empty) {
-      if (LOG) console.log("[Posts] Firestore returned 0 docs, using static fallback");
+      if (LOG) {
+        console.log(`${LOG_PREFIX} getPosts:fallback_empty_snapshot`, {
+          maxPosts: maxPosts ?? null,
+        });
+      }
       return getFallbackPosts(maxPosts);
     }
 
     const posts = snapshot.docs.map((entry) => mapDocToPost(entry.id, entry.data()));
-    if (LOG) console.log("[Posts] Loaded", posts.length, "posts from Firestore");
+    if (LOG) {
+      console.log(`${LOG_PREFIX} getPosts:success`, {
+        postsCount: posts.length,
+        maxPosts: maxPosts ?? null,
+      });
+    }
     return posts;
   } catch (error) {
-    if (LOG) console.error("[Posts] Firestore error (using static fallback):", error);
+    if (LOG) {
+      console.error(`${LOG_PREFIX} getPosts:error_fallback`, {
+        maxPosts: maxPosts ?? null,
+        error:
+          error instanceof Error
+            ? { message: error.message, stack: error.stack }
+            : String(error),
+      });
+    }
     return getFallbackPosts(maxPosts);
   }
 }
@@ -153,6 +178,14 @@ export async function getPostsPage(
   cursor?: PostsPageCursor | null
 ): Promise<GetPostsPageResult> {
   const sortedFallback = sortPosts(postSeedData);
+  if (LOG) {
+    console.log(`${LOG_PREFIX} getPostsPage:start`, {
+      pageSize,
+      cursor: cursor ?? null,
+      isFirebaseConfigured,
+      hasDb: Boolean(db),
+    });
+  }
 
   if (!isFirebaseConfigured || !db) {
     const startIndex = cursor
@@ -163,6 +196,13 @@ export async function getPostsPage(
       page.length === pageSize && page[page.length - 1]
         ? { publishedAt: page[page.length - 1].publishedAt, id: page[page.length - 1].id }
         : null;
+    if (LOG) {
+      console.log(`${LOG_PREFIX} getPostsPage:fallback_no_firebase`, {
+        pageSize,
+        resultCount: page.length,
+        nextCursor,
+      });
+    }
     return { posts: page, nextCursor };
   }
 
@@ -185,6 +225,12 @@ export async function getPostsPage(
     const snapshot = await getDocs(q);
 
     if (snapshot.empty) {
+      if (LOG) {
+        console.log(`${LOG_PREFIX} getPostsPage:empty_snapshot`, {
+          pageSize,
+          cursor: cursor ?? null,
+        });
+      }
       return { posts: [], nextCursor: null };
     }
 
@@ -196,10 +242,24 @@ export async function getPostsPage(
         ? { publishedAt: last.publishedAt, id: last.id }
         : null;
 
-    if (LOG) console.log("[Posts] getPostsPage:", posts.length, "nextCursor:", !!nextCursor);
+    if (LOG) {
+      console.log(`${LOG_PREFIX} getPostsPage:success`, {
+        resultCount: posts.length,
+        nextCursor,
+      });
+    }
     return { posts, nextCursor };
   } catch (error) {
-    if (LOG) console.error("[Posts] getPostsPage error (fallback):", error);
+    if (LOG) {
+      console.error(`${LOG_PREFIX} getPostsPage:error_fallback`, {
+        pageSize,
+        cursor: cursor ?? null,
+        error:
+          error instanceof Error
+            ? { message: error.message, stack: error.stack }
+            : String(error),
+      });
+    }
     const startIndex = cursor
       ? sortedFallback.findIndex((p) => p.id === cursor.id) + 1
       : 0;
@@ -208,6 +268,12 @@ export async function getPostsPage(
       page.length === pageSize && page[page.length - 1]
         ? { publishedAt: page[page.length - 1].publishedAt, id: page[page.length - 1].id }
         : null;
+    if (LOG) {
+      console.log(`${LOG_PREFIX} getPostsPage:fallback_result`, {
+        resultCount: page.length,
+        nextCursor,
+      });
+    }
     return { posts: page, nextCursor };
   }
 }

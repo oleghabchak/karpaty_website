@@ -13,8 +13,14 @@ export const dynamic = "force-dynamic";
 const PAGE_SIZE = 9;
 
 export default async function NewsPage() {
+  console.log("[News/Page] render:start");
   const { posts: initialPosts, nextCursor: initialNextCursor } =
     await getPostsPage(PAGE_SIZE);
+  console.log("[News/Page] render:data", {
+    initialPostsCount: initialPosts.length,
+    hasNextCursor: Boolean(initialNextCursor),
+    nextCursor: initialNextCursor,
+  });
 
   return (
     <>
