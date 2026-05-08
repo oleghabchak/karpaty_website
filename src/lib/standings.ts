@@ -1,5 +1,7 @@
 import { deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
+import { unstable_noStore as noStore } from "next/cache";
 import { db, isFirebaseConfigured } from "./firebase";
+import { getAdminFirestore } from "./firebaseAdminServer";
 import { tableData } from "@/data/tableData";
 import type { TableRow } from "@/types/table";
 
@@ -48,7 +50,7 @@ function mapRows(input: unknown): TableRow[] | null {
     });
   }
 
-  return mapped;
+  return mapped.sort((a, b) => a.position - b.position);
 }
 
 /**
@@ -56,6 +58,25 @@ function mapRows(input: unknown): TableRow[] | null {
  * If Firebase is not configured or the doc is missing - fallback to local static `tableData`.
  */
 export async function getStandingsRows(): Promise<TableRow[]> {
+  noStore();
+
+  // Server path: use Admin SDK (same source of truth as admin save actions).
+  if (typeof window === "undefined") {
+    try {
+      const snapshot = await getAdminFirestore()
+        .collection(STANDINGS_COLLECTION)
+        .doc(STANDINGS_DOC_ID)
+        .get();
+      if (snapshot.exists) {
+        const data = snapshot.data() as Partial<StandingsDoc> | undefined;
+        const rows = mapRows(data?.rows);
+        if (rows) return rows;
+      }
+    } catch {
+      // Fall through to client SDK/fallback path below.
+    }
+  }
+
   if (!isFirebaseConfigured || !db) {
     return tableData;
   }

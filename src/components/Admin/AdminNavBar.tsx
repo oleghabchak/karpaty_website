@@ -8,6 +8,7 @@ const links = [
   { href: "/admin", label: "Головна" },
   { href: "/admin/news", label: "Новини" },
   { href: "/admin/table", label: "Таблиця" },
+  { href: "/admin/u19-table", label: "U-19 таблиця" },
   { href: "/admin/matches", label: "Матчі" },
 ] as const;
 

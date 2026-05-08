@@ -84,6 +84,16 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               </Link>
 
               <Link
+                href="/admin/u19-table"
+                className="rounded-xs border border-body-color/10 bg-white p-5 text-left shadow-sm transition hover:border-body-color/20 hover:shadow-md dark:border-white/10 dark:bg-gray-dark"
+              >
+                <div className="text-dark text-lg font-semibold dark:text-white">Адмін таблиці U-19</div>
+                <p className="text-body-color mt-1 text-sm dark:text-body-color-dark">
+                  CRUD для турнірної таблиці U-19 (Сезон 2025).
+                </p>
+              </Link>
+
+              <Link
                 href="/admin/matches"
                 className="rounded-xs border border-body-color/10 bg-white p-5 text-left shadow-sm transition hover:border-body-color/20 hover:shadow-md dark:border-white/10 dark:bg-gray-dark"
               >

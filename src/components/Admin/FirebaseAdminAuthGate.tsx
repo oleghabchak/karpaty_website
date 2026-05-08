@@ -24,7 +24,13 @@ export default function FirebaseAdminAuthGate({
   const canSubmit = useMemo(() => password.trim().length > 0 && !pending, [password, pending]);
 
   useEffect(() => {
-    return onAuthStateChanged(auth, (user) => setAuthed(Boolean(user)));
+    return onAuthStateChanged(auth, (user) => {
+      const isAdminUser = Boolean(user && user.email?.toLowerCase() === ADMIN_EMAIL);
+      setAuthed(isAdminUser);
+      if (user && !isAdminUser) {
+        setError("Цей акаунт не має прав адміна. Увійдіть як admin@gmail.com.");
+      }
+    });
   }, []);
 
   async function handleSignIn(e: React.FormEvent) {
@@ -34,7 +40,14 @@ export default function FirebaseAdminAuthGate({
 
     setPending(true);
     try {
-      await signInWithEmailAndPassword(auth, ADMIN_EMAIL, password);
+      const credentials = await signInWithEmailAndPassword(auth, ADMIN_EMAIL, password);
+      if (credentials.user.email?.toLowerCase() !== ADMIN_EMAIL) {
+        await signOut(auth);
+        setError("Цей акаунт не має прав адміна. Увійдіть як admin@gmail.com.");
+        setAuthed(false);
+      } else {
+        setAuthed(true);
+      }
     } catch {
       setError("Не вдалося увійти в Firebase. Перевірте пароль.");
       setAuthed(false);

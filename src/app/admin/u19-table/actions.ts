@@ -59,28 +59,23 @@ function parseRows(payload: string): TableRow[] | null {
   }
 }
 
-export async function loginAdminTable(formData: FormData) {
+export async function loginAdminU19Table(formData: FormData) {
   const configuredSecret = getAdminSecret();
   const secret = getField(formData, "secret");
 
   if (!configuredSecret) {
-    redirect("/admin/table?error=missing-secret");
+    redirect("/admin/u19-table?error=missing-secret");
   }
 
   if (secret !== configuredSecret) {
-    redirect("/admin/table?error=invalid-secret");
+    redirect("/admin/u19-table?error=invalid-secret");
   }
 
   await createAdminSession();
-  redirect("/admin/table");
+  redirect("/admin/u19-table");
 }
 
-export async function logoutAdminTable() {
-  await clearAdminSession();
-  redirect("/admin/table");
-}
-
-export async function saveStandings(formData: FormData) {
+export async function saveU19Standings(formData: FormData) {
   const isAuthenticated = await isAdminAuthenticated();
   if (!isAuthenticated) {
     return { ok: false as const, error: "unauthorized" };
@@ -93,18 +88,17 @@ export async function saveStandings(formData: FormData) {
   }
 
   const db = getAdminFirestore();
-  await db.collection("standings").doc("main").set({ rows }, { merge: true });
+  await db.collection("u19Standings").doc("main").set({ rows }, { merge: true });
   return { ok: true as const };
 }
 
-export async function resetStandingsAction() {
+export async function resetU19StandingsAction() {
   const isAuthenticated = await isAdminAuthenticated();
   if (!isAuthenticated) {
     return { ok: false as const, error: "unauthorized" };
   }
 
   const db = getAdminFirestore();
-  await db.collection("standings").doc("main").delete();
+  await db.collection("u19Standings").doc("main").delete();
   return { ok: true as const };
 }
-

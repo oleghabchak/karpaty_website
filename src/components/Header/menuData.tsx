@@ -44,6 +44,7 @@ const menuData: Menu[] = [
       { id: 32, title: "Фото", path: "/u19/photo", newTab: false },
       { id: 33, title: "Новини", path: "/u19/news", newTab: false },
       { id: 34, title: "Турнірна таблиця", path: "/u19/table", newTab: false },
+      { id: 35, title: "Сезон 2025 U-19", path: "/u19/season-2025", newTab: false },
     ],
   }, 
 ];

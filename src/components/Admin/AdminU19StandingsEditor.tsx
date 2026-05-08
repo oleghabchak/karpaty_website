@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { TableRow } from "@/types/table";
-import { resetStandingsAction, saveStandings } from "@/app/admin/table/actions";
+import { resetU19StandingsAction, saveU19Standings } from "@/app/admin/u19-table/actions";
 
-type AdminStandingsEditorProps = {
+type AdminU19StandingsEditorProps = {
   initialRows: TableRow[];
 };
 
@@ -27,7 +27,6 @@ function normalizeRow(row: TableRow): TableRow {
   };
 }
 
-/** Для `type=number` колонки не робити вужчими за ~3.5rem — інакше стрілки спінера перекривають кліки по полю. */
 const inputCell =
   "border-stroke dark:bg-dark dark:border-white/10 dark:text-white min-w-0 w-full rounded-xs border p-2 text-sm outline-hidden focus:border-primary";
 
@@ -53,7 +52,7 @@ function makeEmptyRow(nextPosition: number): TableRow {
   };
 }
 
-export default function AdminStandingsEditor({ initialRows }: AdminStandingsEditorProps) {
+export default function AdminU19StandingsEditor({ initialRows }: AdminU19StandingsEditorProps) {
   const [rows, setRows] = useState<TableRow[]>(() => initialRows.map(normalizeRow));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -78,21 +77,21 @@ export default function AdminStandingsEditor({ initialRows }: AdminStandingsEdit
     try {
       const formData = new FormData();
       formData.set("payload", JSON.stringify(rows));
-      const result = await saveStandings(formData);
+      const result = await saveU19Standings(formData);
       if (!result.ok) {
         if (result.error === "unauthorized") {
           setError("Сесія завершилась. Увійдіть ще раз.");
         } else if (result.error === "invalid-payload") {
           setError("Некоректні дані таблиці.");
         } else {
-          setError("Не вдалося зберегти таблицю в Firestore.");
+          setError("Не вдалося зберегти таблицю U-19 у Firestore.");
         }
         return;
       }
-      router.push("/admin/table?saved=1");
-    } catch (error) {
-      console.error(error);
-      setError(error instanceof Error ? error.message : "Не вдалося зберегти таблицю в Firestore.");
+      router.push("/admin/u19-table?saved=1");
+    } catch (err) {
+      console.error(err);
+      setError(err instanceof Error ? err.message : "Не вдалося зберегти таблицю U-19 у Firestore.");
     } finally {
       setSaving(false);
     }
@@ -102,14 +101,14 @@ export default function AdminStandingsEditor({ initialRows }: AdminStandingsEdit
     setError(null);
     setSaving(true);
     try {
-      const result = await resetStandingsAction();
+      const result = await resetU19StandingsAction();
       if (!result.ok) {
         setError("Сесія завершилась. Увійдіть ще раз.");
         return;
       }
-      router.push("/admin/table?reset=1");
+      router.push("/admin/u19-table?reset=1");
     } catch {
-      setError("Не вдалося скинути таблицю в Firestore.");
+      setError("Не вдалося скинути таблицю U-19.");
     } finally {
       setSaving(false);
     }
@@ -119,9 +118,9 @@ export default function AdminStandingsEditor({ initialRows }: AdminStandingsEdit
     <div className="mx-auto max-w-6xl">
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-dark text-2xl font-semibold dark:text-white">Турнірна таблиця</h2>
+          <h2 className="text-dark text-2xl font-semibold dark:text-white">Турнірна таблиця U-19</h2>
           <p className="text-body-color mt-1 text-sm dark:text-body-color-dark">
-            Редагуйте рядки та збережіть. Дані зберігаються у Firestore.
+            Редагуйте рядки та збережіть. Публічний перегляд — на сторінці «Сезон 2025».
           </p>
         </div>
       </div>
@@ -146,7 +145,7 @@ export default function AdminStandingsEditor({ initialRows }: AdminStandingsEdit
           disabled={saving}
           className="rounded-xs border border-primary bg-white px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {saving ? "…" : "Скинути до дефолту"}
+          {saving ? "…" : "Скинути (видалити з Firestore)"}
         </button>
         <button
           type="button"
@@ -154,7 +153,7 @@ export default function AdminStandingsEditor({ initialRows }: AdminStandingsEdit
           disabled={saving}
           className="bg-primary hover:bg-primary/90 rounded-xs px-4 py-1.5 text-sm font-medium text-white duration-300 disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {saving ? "Збереження…" : "Зберегти таблицю"}
+          {saving ? "Збереження…" : "Зберегти таблицю U-19"}
         </button>
       </div>
 
