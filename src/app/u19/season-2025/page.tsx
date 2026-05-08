@@ -1,8 +1,7 @@
 import Breadcrumb from "@/components/Common/Breadcrumb";
 import U19ScorersTable from "@/components/U19/U19ScorersTable";
 import U19StandingsTable from "@/components/U19/U19StandingsTable";
-import { u19Scorers2025 } from "@/data/u19TableData";
-import { getU19StandingsRows } from "@/lib/u19Standings";
+import { u19Scorers2025, u19Table2025 } from "@/data/u19TableData";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -10,11 +9,7 @@ export const metadata: Metadata = {
   description: "Підсумки сезону 2025 для команди U-19.",
 };
 
-export const dynamic = "force-dynamic";
-
-export default async function U19Season2025Page() {
-  const standingsRows = await getU19StandingsRows();
-
+export default function U19Season2025Page() {
   return (
     <>
       <Breadcrumb
@@ -33,7 +28,7 @@ export default async function U19Season2025Page() {
           <h2 className="mb-3 text-xl font-bold text-black dark:text-white md:text-2xl">
             Турнірна таблиця
           </h2>
-          <U19StandingsTable rows={standingsRows} />
+          <U19StandingsTable rows={u19Table2025} />
 
           <h2 className="mb-3 mt-10 text-xl font-bold text-black dark:text-white md:text-2xl">
             Бомбардири

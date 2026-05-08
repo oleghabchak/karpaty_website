@@ -65,7 +65,8 @@ function mapAuthor(data: DocumentData): PostAuthor {
 function mapDocToPost(id: string, data: DocumentData): Post {
   const title = data.title ?? "";
   const publishedAt =
-    data.publishedAt ??
+    timestampToIso(data.publishedAt) ??
+    (typeof data.publishedAt === "string" ? data.publishedAt : undefined) ??
     timestampToIso(data.createdAt) ??
     timestampToIso(data.updatedAt) ??
     "";
