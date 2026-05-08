@@ -7,7 +7,6 @@ import CalendarTeaser from "@/components/Matches/CalendarTeaser";
 import NewsSection from "@/components/News";
 import TeamTeaser from "@/components/Team/TeamTeaser";
 import Video from "@/components/Video";
-import Brands from "@/components/Brands";
 import Contact from "@/components/Contact";
 import { Metadata } from "next";
 
@@ -29,7 +28,6 @@ export default function Home() {
       <CalendarTeaser />
       <TeamTeaser />
       <Video />
-      <Brands />
       <Contact />
     </>
   );

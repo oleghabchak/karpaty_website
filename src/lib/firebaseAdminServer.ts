@@ -16,14 +16,25 @@ function getProjectId(): string {
 function getServiceAccount() {
   const jsonPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
   const jsonStr = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+  const implicitLocalPath = path.join(process.cwd(), "secrets", "firebase-sa.json");
 
   if (jsonStr) {
-    return JSON.parse(jsonStr.trim());
+    try {
+      return JSON.parse(jsonStr.trim());
+    } catch {
+      // In .env files, multiline JSON is often parsed incorrectly.
+      // Continue to file-based fallbacks for local development.
+    }
   }
 
   if (jsonPath) {
     const resolved = path.isAbsolute(jsonPath) ? jsonPath : path.join(process.cwd(), jsonPath);
     const raw = fs.readFileSync(resolved, "utf8");
+    return JSON.parse(raw);
+  }
+
+  if (fs.existsSync(implicitLocalPath)) {
+    const raw = fs.readFileSync(implicitLocalPath, "utf8");
     return JSON.parse(raw);
   }
 

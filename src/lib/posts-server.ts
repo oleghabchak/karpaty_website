@@ -13,7 +13,7 @@ const LOG_PREFIX = "[News/Posts]";
 
 const DEFAULT_AUTHOR: PostAuthor = {
   name: "Прес-служба ФК Уличне",
-  image: "/images/blog/author-03.png",
+  image: "/teamLogo/logo_noBG.png",
   designation: "Офіційно",
 };
 

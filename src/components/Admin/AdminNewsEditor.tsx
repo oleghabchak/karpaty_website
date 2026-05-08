@@ -16,7 +16,7 @@ type AdminNewsEditorProps = {
 };
 
 const defaultAuthorName = "Прес-служба ФК Уличне";
-const defaultAuthorImage = "/images/blog/author-03.png";
+const defaultAuthorImage = "/teamLogo/logo_noBG.png";
 const defaultAuthorDesignation = "Офіційно";
 
 export default function AdminNewsEditor({

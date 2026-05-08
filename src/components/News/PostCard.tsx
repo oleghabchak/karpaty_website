@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Post } from "@/types/post";
 
 const fallbackImage = "/images/blog/blog-01.jpg";
-const fallbackAuthorImage = "/images/blog/author-03.png";
+const fallbackAuthorImage = "/teamLogo/logo_noBG.png";
 
 export default function PostCard({ post }: { post: Post }) {
   const {

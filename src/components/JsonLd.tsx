@@ -12,7 +12,11 @@ export function JsonLd() {
     name: "ФК «Уличне»",
     alternateName: "FC Ulychne",
     url: base,
-    logo: `${base}/images/logo/logo-2.svg`,
+    logo: `${base}/teamLogo/logoWhiteBG.png`,
+    sameAs: [
+      "https://www.instagram.com/fc.ulychne/",
+      "https://www.youtube.com/@FCUlychne/videos",
+    ],
     description:
       "Офіційний сайт футбольного клубу «Уличне». Новини, матчі, команда, турнірна таблиця.",
     inLanguage: "uk",

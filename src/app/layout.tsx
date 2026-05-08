@@ -1,5 +1,6 @@
 import { LayoutClient } from "@/components/LayoutClient";
 import { JsonLd } from "@/components/JsonLd";
+import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "../styles/index.css";
 
@@ -10,7 +11,7 @@ const siteUrl =
   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
   "https://karpaty-website.vercel.app";
 
-export const metadata = {
+export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default: "ФК «Уличне» — Офіційний сайт футбольного клубу",
@@ -47,9 +48,9 @@ export const metadata = {
       "Офіційний сайт футбольного клубу «Уличне». Новини, матчі, команда, турнірна таблиця.",
     images: [
       {
-        url: "/images/logo/logo-2.svg",
-        width: 280,
-        height: 60,
+        url: "/teamLogo/logoWhiteBG.png",
+        width: 768,
+        height: 768,
         alt: "ФК Уличне",
       },
     ],
@@ -59,6 +60,11 @@ export const metadata = {
     title: "ФК «Уличне» — Офіційний сайт",
     description:
       "Офіційний сайт футбольного клубу «Уличне». Новини, матчі, команда.",
+  },
+  icons: {
+    icon: "/teamLogo/logo_noBG.png",
+    shortcut: "/teamLogo/logo_noBG.png",
+    apple: "/teamLogo/logo_noBG.png",
   },
   robots: {
     index: true,
