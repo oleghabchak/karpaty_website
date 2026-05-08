@@ -24,7 +24,6 @@ import type { CreatePostInput, Post, PostAuthor } from "@/types/post";
 const POSTS_COLLECTION = "posts";
 const LOG = process.env.NODE_ENV === "development" || process.env.VERCEL === "1";
 const LOG_PREFIX = "[News/Posts]";
-const IS_SERVER = typeof window === "undefined";
 
 const DEFAULT_AUTHOR: PostAuthor = {
   name: "Прес-служба ФК Уличне",
@@ -104,14 +103,6 @@ function getFallbackPosts(maxPosts?: number) {
   return typeof maxPosts === "number" ? posts.slice(0, maxPosts) : posts;
 }
 
-async function getAdminPostsCollection() {
-  const [{ getAdminFirestore }, { FieldPath }] = await Promise.all([
-    import("@/lib/firebaseAdminServer"),
-    import("firebase-admin/firestore"),
-  ]);
-  return { postsRef: getAdminFirestore().collection(POSTS_COLLECTION), FieldPath };
-}
-
 export async function getPosts(options?: { maxPosts?: number }): Promise<Post[]> {
   const maxPosts = options?.maxPosts;
   if (LOG) {
@@ -130,42 +121,6 @@ export async function getPosts(options?: { maxPosts?: number }): Promise<Post[]>
       });
     }
     return getFallbackPosts(maxPosts);
-  }
-
-  if (IS_SERVER) {
-    try {
-      const { postsRef } = await getAdminPostsCollection();
-      const adminQuery =
-        typeof maxPosts === "number"
-          ? postsRef.orderBy("publishedAt", "desc").limit(maxPosts)
-          : postsRef.orderBy("publishedAt", "desc");
-      const snapshot = await adminQuery.get();
-
-      if (snapshot.empty) {
-        if (LOG) {
-          console.log(`${LOG_PREFIX} getPosts:admin_empty_snapshot_fallback`);
-        }
-        return getFallbackPosts(maxPosts);
-      }
-
-      const posts = snapshot.docs.map((entry) => mapDocToPost(entry.id, entry.data()));
-      if (LOG) {
-        console.log(`${LOG_PREFIX} getPosts:admin_success`, {
-          postsCount: posts.length,
-          maxPosts: maxPosts ?? null,
-        });
-      }
-      return posts;
-    } catch (error) {
-      if (LOG) {
-        console.error(`${LOG_PREFIX} getPosts:admin_error_fallback_to_web_sdk`, {
-          error:
-            error instanceof Error
-              ? { message: error.message, stack: error.stack }
-              : String(error),
-        });
-      }
-    }
   }
 
   try {
@@ -251,57 +206,6 @@ export async function getPostsPage(
     return { posts: page, nextCursor };
   }
 
-  if (IS_SERVER) {
-    try {
-      const { postsRef, FieldPath } = await getAdminPostsCollection();
-      const adminQuery = cursor
-        ? postsRef
-            .orderBy("publishedAt", "desc")
-            .orderBy(FieldPath.documentId(), "desc")
-            .startAfter(cursor.publishedAt, cursor.id)
-            .limit(pageSize)
-        : postsRef.orderBy("publishedAt", "desc").orderBy(FieldPath.documentId(), "desc").limit(pageSize);
-      const snapshot = await adminQuery.get();
-
-      if (snapshot.empty) {
-        if (LOG) {
-          console.log(`${LOG_PREFIX} getPostsPage:admin_empty_snapshot`, {
-            pageSize,
-            cursor: cursor ?? null,
-          });
-        }
-        return { posts: [], nextCursor: null };
-      }
-
-      const posts = snapshot.docs.map((d) => mapDocToPost(d.id, d.data()));
-      const hasMore = snapshot.docs.length === pageSize;
-      const last = posts[posts.length - 1];
-      const nextCursor =
-        hasMore && last
-          ? { publishedAt: last.publishedAt, id: last.id }
-          : null;
-
-      if (LOG) {
-        console.log(`${LOG_PREFIX} getPostsPage:admin_success`, {
-          resultCount: posts.length,
-          nextCursor,
-        });
-      }
-      return { posts, nextCursor };
-    } catch (error) {
-      if (LOG) {
-        console.error(`${LOG_PREFIX} getPostsPage:admin_error_fallback_to_web_sdk`, {
-          pageSize,
-          cursor: cursor ?? null,
-          error:
-            error instanceof Error
-              ? { message: error.message, stack: error.stack }
-              : String(error),
-        });
-      }
-    }
-  }
-
   try {
     const postsRef = collection(db, POSTS_COLLECTION);
     const q = cursor
@@ -384,29 +288,6 @@ export async function getPostBySlug(slug: string) {
 
   if (!isFirebaseConfigured || !db) {
     return fallback;
-  }
-
-  if (IS_SERVER) {
-    try {
-      const { postsRef } = await getAdminPostsCollection();
-      const snapshot = await postsRef.doc(slug).get();
-      if (snapshot.exists) {
-        return mapDocToPost(snapshot.id, snapshot.data() ?? {});
-      }
-
-      const posts = await getPosts();
-      return posts.find((post) => post.slug === slug) ?? fallback;
-    } catch (error) {
-      if (LOG) {
-        console.error(`${LOG_PREFIX} getPostBySlug:admin_error_fallback_to_web_sdk`, {
-          slug,
-          error:
-            error instanceof Error
-              ? { message: error.message, stack: error.stack }
-              : String(error),
-        });
-      }
-    }
   }
 
   try {

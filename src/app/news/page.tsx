@@ -1,6 +1,6 @@
 import Breadcrumb from "@/components/Common/Breadcrumb";
 import NewsListWithLoadMore from "@/components/News/NewsListWithLoadMore";
-import { getPostsPage } from "@/lib/posts";
+import { getPostsPageServer } from "@/lib/posts-server";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -15,7 +15,7 @@ const PAGE_SIZE = 9;
 export default async function NewsPage() {
   console.log("[News/Page] render:start");
   const { posts: initialPosts, nextCursor: initialNextCursor } =
-    await getPostsPage(PAGE_SIZE);
+    await getPostsPageServer(PAGE_SIZE);
   console.log("[News/Page] render:data", {
     initialPostsCount: initialPosts.length,
     hasNextCursor: Boolean(initialNextCursor),

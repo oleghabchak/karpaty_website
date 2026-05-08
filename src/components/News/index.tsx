@@ -1,9 +1,9 @@
 import SectionTitle from "../Common/SectionTitle";
-import { getLatestPosts } from "@/lib/posts";
+import { getLatestPostsServer } from "@/lib/posts-server";
 import PostCard from "./PostCard";
 
 export default async function NewsSection() {
-  const posts = await getLatestPosts(3);
+  const posts = await getLatestPostsServer(3);
 
   return (
     <section

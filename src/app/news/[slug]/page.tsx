@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Breadcrumb from "@/components/Common/Breadcrumb";
 import MarkdownContent from "@/components/News/MarkdownContent";
-import { getPostBySlug } from "@/lib/posts";
+import { getPostBySlugServer } from "@/lib/posts-server";
 
 type NewsPostPageProps = {
   params: Promise<{ slug: string }>;
@@ -12,7 +12,7 @@ export async function generateMetadata({
   params,
 }: NewsPostPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = await getPostBySlug(slug);
+  const post = await getPostBySlugServer(slug);
 
   if (!post) {
     return {
@@ -28,7 +28,7 @@ export async function generateMetadata({
 
 export default async function NewsPostPage({ params }: NewsPostPageProps) {
   const { slug } = await params;
-  const post = await getPostBySlug(slug);
+  const post = await getPostBySlugServer(slug);
 
   if (!post) {
     notFound();
