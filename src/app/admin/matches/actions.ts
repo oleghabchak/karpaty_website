@@ -1,8 +1,15 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { isAdminAuthenticated, createAdminSession, clearAdminSession, getAdminSecret } from "@/lib/admin-session";
-import { resetMatches, upsertMatchesFeatured } from "@/lib/matches";
+import { getAdminFirestore } from "@/lib/firebaseAdminServer";
+import {
+  MATCHES_COLLECTION,
+  MATCHES_DOC_ID,
+  stripUndefinedDeep,
+  type MatchesFeaturedDoc,
+} from "@/lib/matches";
 import type { Match } from "@/types/match";
 
 function getField(formData: FormData, key: string) {
@@ -60,7 +67,7 @@ function parseMatch(input: unknown): Match | null {
   };
 }
 
-function parseMatchesPayload(payload: string): { nextMatch: Match; lastMatch: Match; upcomingMatches: Match[] } | null {
+function parseMatchesPayload(payload: string): MatchesFeaturedDoc | null {
   if (!payload.trim()) return null;
   try {
     const parsed: unknown = JSON.parse(payload);
@@ -83,6 +90,12 @@ function parseMatchesPayload(payload: string): { nextMatch: Match; lastMatch: Ma
   } catch {
     return null;
   }
+}
+
+function revalidateMatchesPages() {
+  revalidatePath("/");
+  revalidatePath("/matches");
+  revalidatePath("/admin/matches");
 }
 
 export async function loginAdminMatches(formData: FormData) {
@@ -109,26 +122,30 @@ export async function logoutAdminMatches() {
 export async function saveMatches(formData: FormData) {
   const isAuthenticated = await isAdminAuthenticated();
   if (!isAuthenticated) {
-    redirect("/admin/matches?error=unauthorized");
+    return { ok: false as const, error: "unauthorized" };
   }
 
   const payload = getField(formData, "payload");
   const parsed = parseMatchesPayload(payload);
   if (!parsed) {
-    redirect("/admin/matches?error=invalid-payload");
+    return { ok: false as const, error: "invalid-payload" };
   }
 
-  await upsertMatchesFeatured(parsed);
-  redirect("/admin/matches?saved=1");
+  const sanitized = stripUndefinedDeep(parsed);
+  const db = getAdminFirestore();
+  await db.collection(MATCHES_COLLECTION).doc(MATCHES_DOC_ID).set(sanitized, { merge: true });
+  revalidateMatchesPages();
+  return { ok: true as const };
 }
 
 export async function resetMatchesAction() {
   const isAuthenticated = await isAdminAuthenticated();
   if (!isAuthenticated) {
-    redirect("/admin/matches?error=unauthorized");
+    return { ok: false as const, error: "unauthorized" };
   }
 
-  await resetMatches();
-  redirect("/admin/matches?reset=1");
+  const db = getAdminFirestore();
+  await db.collection(MATCHES_COLLECTION).doc(MATCHES_DOC_ID).delete();
+  revalidateMatchesPages();
+  return { ok: true as const };
 }
-

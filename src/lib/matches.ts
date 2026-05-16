@@ -1,10 +1,14 @@
 import { deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
+import { unstable_noStore as noStore } from "next/cache";
 import { db, isFirebaseConfigured } from "./firebase";
+import { getAdminFirestore } from "./firebaseAdminServer";
 import { lastMatch, nextMatch, upcomingMatches } from "@/data/matchesData";
 import type { Match } from "@/types/match";
 
-const MATCHES_COLLECTION = "matches";
-const MATCHES_DOC_ID = "main";
+export const MATCHES_COLLECTION = "matches";
+export const MATCHES_DOC_ID = "main";
+
+const defaultFeatured: MatchesFeaturedDoc = { nextMatch, lastMatch, upcomingMatches };
 
 export type MatchesFeaturedDoc = {
   nextMatch: Match;
@@ -12,7 +16,7 @@ export type MatchesFeaturedDoc = {
   upcomingMatches: Match[];
 };
 
-function stripUndefinedDeep<T>(value: T): T {
+export function stripUndefinedDeep<T>(value: T): T {
   if (Array.isArray(value)) {
     const mapped = value.map((v) => stripUndefinedDeep(v)).filter((v) => v !== undefined);
     return mapped as unknown as T;
@@ -84,31 +88,48 @@ function mapMatchesArray(input: unknown): Match[] | null {
   return mapped;
 }
 
+function mapFeaturedDoc(data: Partial<MatchesFeaturedDoc> | undefined): MatchesFeaturedDoc | null {
+  const mappedNext = mapMatch(data?.nextMatch);
+  const mappedLast = mapMatch(data?.lastMatch);
+  const mappedUpcoming = mapMatchesArray(data?.upcomingMatches);
+  if (!mappedNext || !mappedLast || !mappedUpcoming) return null;
+  return {
+    nextMatch: mappedNext,
+    lastMatch: mappedLast,
+    upcomingMatches: mappedUpcoming,
+  };
+}
+
 export async function getMatchesFeatured(): Promise<MatchesFeaturedDoc> {
+  noStore();
+
+  if (typeof window === "undefined") {
+    try {
+      const snapshot = await getAdminFirestore()
+        .collection(MATCHES_COLLECTION)
+        .doc(MATCHES_DOC_ID)
+        .get();
+      if (snapshot.exists) {
+        const mapped = mapFeaturedDoc(snapshot.data() as Partial<MatchesFeaturedDoc> | undefined);
+        if (mapped) return mapped;
+      }
+    } catch {
+      // Fall through to client SDK / fallback path below.
+    }
+  }
+
   if (!isFirebaseConfigured || !db) {
-    return { nextMatch, lastMatch, upcomingMatches };
+    return defaultFeatured;
   }
 
   try {
     const snapshot = await getDoc(doc(db, MATCHES_COLLECTION, MATCHES_DOC_ID));
-    if (!snapshot.exists()) return { nextMatch, lastMatch, upcomingMatches };
+    if (!snapshot.exists()) return defaultFeatured;
 
-    const data = snapshot.data() as Partial<MatchesFeaturedDoc> | undefined;
-    const mappedNext = mapMatch(data?.nextMatch);
-    const mappedLast = mapMatch(data?.lastMatch);
-    const mappedUpcoming = mapMatchesArray(data?.upcomingMatches);
-
-    if (!mappedNext || !mappedLast || !mappedUpcoming) {
-      return { nextMatch, lastMatch, upcomingMatches };
-    }
-
-    return {
-      nextMatch: mappedNext,
-      lastMatch: mappedLast,
-      upcomingMatches: mappedUpcoming,
-    };
+    const mapped = mapFeaturedDoc(snapshot.data() as Partial<MatchesFeaturedDoc> | undefined);
+    return mapped ?? defaultFeatured;
   } catch {
-    return { nextMatch, lastMatch, upcomingMatches };
+    return defaultFeatured;
   }
 }
 

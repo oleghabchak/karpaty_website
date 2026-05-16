@@ -13,7 +13,8 @@ const NextMatch = async () => {
         </h2>
         <div className="rounded-lg border border-body-color/10 bg-body-color/5 p-6 dark:border-white/10 dark:bg-white/5 md:p-8">
           <p className="mb-2 text-sm text-body-color dark:text-body-color-dark">
-            {nextMatch.date} / {nextMatch.time}
+            {nextMatch.date}
+            {nextMatch.time ? ` / ${nextMatch.time}` : ""}
           </p>
           {nextMatch.venue && (
             <p className="mb-4 text-sm text-body-color dark:text-body-color-dark">

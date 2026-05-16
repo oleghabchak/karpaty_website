@@ -9,6 +9,7 @@ import TeamTeaser from "@/components/Team/TeamTeaser";
 import Video from "@/components/Video";
 import Contact from "@/components/Contact";
 import { Metadata } from "next";
+import LastMatch from "@/components/Matches/LastMatch";
 
 export const metadata: Metadata = {
   title: "ФК «Уличне» — Офіційний сайт",
@@ -22,6 +23,7 @@ export default function Home() {
       <ScrollUp />
       <Hero />
       <NextMatch />
+      <LastMatch />
       <TableTeaser />
       <FriendlyMatchesTeaser />
       <NewsSection />

@@ -16,6 +16,9 @@ const LastMatch = async () => {
             {lastMatch.date}
             {lastMatch.tour != null ? ` / ${lastMatch.tour} тур` : ""}
           </p>
+          {lastMatch.venue ? (
+            <p className="mb-4 text-sm text-body-color dark:text-body-color-dark">{lastMatch.venue}</p>
+          ) : null}
           <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8">
             <span className="text-lg font-bold text-black dark:text-white md:text-xl">
               «{lastMatch.homeTeam}»

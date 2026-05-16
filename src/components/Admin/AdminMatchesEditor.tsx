@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { Match } from "@/types/match";
 import type { MatchesFeaturedDoc } from "@/lib/matches";
 import { useRouter } from "next/navigation";
-import { resetMatches, upsertMatchesFeatured } from "@/lib/matches";
+import { resetMatchesAction, saveMatches } from "@/app/admin/matches/actions";
 
 type AdminMatchesEditorProps = {
   initialFeatured: MatchesFeaturedDoc;
@@ -71,11 +71,19 @@ export default function AdminMatchesEditor({ initialFeatured }: AdminMatchesEdit
     setError(null);
     setSaving(true);
     try {
-      await upsertMatchesFeatured({
-        nextMatch,
-        lastMatch,
-        upcomingMatches,
-      });
+      const formData = new FormData();
+      formData.set("payload", JSON.stringify({ nextMatch, lastMatch, upcomingMatches }));
+      const result = await saveMatches(formData);
+      if (!result.ok) {
+        if (result.error === "unauthorized") {
+          setError("Сесія завершилась. Увійдіть ще раз.");
+        } else if (result.error === "invalid-payload") {
+          setError("Некоректні дані матчів.");
+        } else {
+          setError("Не вдалося зберегти матчі в Firestore.");
+        }
+        return;
+      }
       router.push("/admin/matches?saved=1");
     } catch {
       setError("Не вдалося зберегти матчі в Firestore.");
@@ -88,7 +96,15 @@ export default function AdminMatchesEditor({ initialFeatured }: AdminMatchesEdit
     setError(null);
     setSaving(true);
     try {
-      await resetMatches();
+      const result = await resetMatchesAction();
+      if (!result.ok) {
+        if (result.error === "unauthorized") {
+          setError("Сесія завершилась. Увійдіть ще раз.");
+        } else {
+          setError("Не вдалося скинути матчі до дефолту.");
+        }
+        return;
+      }
       router.push("/admin/matches?reset=1");
     } catch {
       setError("Не вдалося скинути матчі до дефолту.");
@@ -183,6 +199,32 @@ export default function AdminMatchesEditor({ initialFeatured }: AdminMatchesEdit
                   className="border-stroke dark:bg-dark dark:border-white/10 dark:text-white w-full rounded-xs border px-3 py-2 outline-hidden focus:border-primary"
                 />
               </label>
+              <label className="text-sm sm:col-span-2">
+                Місце проведення (опц.)
+                <input
+                  type="text"
+                  value={nextMatch.venue ?? ""}
+                  onChange={(e) => updateNextMatch({ venue: parseOptionalString(e.target.value) })}
+                  className="border-stroke dark:bg-dark dark:border-white/10 dark:text-white w-full rounded-xs border px-3 py-2 outline-hidden focus:border-primary"
+                />
+              </label>
+            </div>
+            <div className="rounded-xs border border-dashed border-body-color/20 bg-body-color/5 p-4 dark:border-white/10 dark:bg-white/5">
+              <p className="text-body-color mb-3 text-xs font-medium uppercase tracking-wide dark:text-body-color-dark">
+                Як на сайті
+              </p>
+              <p className="text-body-color mb-2 text-sm dark:text-body-color-dark">
+                {nextMatch.date}
+                {nextMatch.time ? ` / ${nextMatch.time}` : ""}
+              </p>
+              {nextMatch.venue ? (
+                <p className="text-body-color mb-3 text-sm dark:text-body-color-dark">{nextMatch.venue}</p>
+              ) : null}
+              <div className="flex flex-wrap items-center justify-center gap-3 text-center">
+                <span className="font-semibold text-black dark:text-white">«{nextMatch.homeTeam || "—"}»</span>
+                <span className="text-xl font-bold text-primary">VS</span>
+                <span className="font-semibold text-black dark:text-white">«{nextMatch.awayTeam || "—"}»</span>
+              </div>
             </div>
           </section>
 
@@ -243,6 +285,45 @@ export default function AdminMatchesEditor({ initialFeatured }: AdminMatchesEdit
                   className="border-stroke dark:bg-dark dark:border-white/10 dark:text-white w-full rounded-xs border px-3 py-2 outline-hidden focus:border-primary"
                 />
               </label>
+              <label className="text-sm">
+                Конкуренція (опц.)
+                <input
+                  type="text"
+                  value={lastMatch.competition ?? ""}
+                  onChange={(e) => updateLastMatch({ competition: parseOptionalString(e.target.value) })}
+                  className="border-stroke dark:bg-dark dark:border-white/10 dark:text-white w-full rounded-xs border px-3 py-2 outline-hidden focus:border-primary"
+                />
+              </label>
+              <label className="text-sm sm:col-span-2">
+                Місце проведення (опц.)
+                <input
+                  type="text"
+                  value={lastMatch.venue ?? ""}
+                  onChange={(e) => updateLastMatch({ venue: parseOptionalString(e.target.value) })}
+                  className="border-stroke dark:bg-dark dark:border-white/10 dark:text-white w-full rounded-xs border px-3 py-2 outline-hidden focus:border-primary"
+                />
+              </label>
+            </div>
+            <div className="rounded-xs border border-dashed border-body-color/20 bg-body-color/5 p-4 dark:border-white/10 dark:bg-white/5">
+              <p className="text-body-color mb-3 text-xs font-medium uppercase tracking-wide dark:text-body-color-dark">
+                Як на сайті
+              </p>
+              <p className="text-body-color mb-2 text-sm dark:text-body-color-dark">
+                {lastMatch.date}
+                {lastMatch.tour != null ? ` / ${lastMatch.tour} тур` : ""}
+              </p>
+              {lastMatch.venue ? (
+                <p className="text-body-color mb-3 text-sm dark:text-body-color-dark">{lastMatch.venue}</p>
+              ) : null}
+              <div className="flex flex-wrap items-center justify-center gap-3 text-center">
+                <span className="font-semibold text-black dark:text-white">«{lastMatch.homeTeam || "—"}»</span>
+                <span className="text-xl font-bold text-primary">
+                  {lastMatch.homeScore != null && lastMatch.awayScore != null
+                    ? `${lastMatch.homeScore} – ${lastMatch.awayScore}`
+                    : "— – —"}
+                </span>
+                <span className="font-semibold text-black dark:text-white">«{lastMatch.awayTeam || "—"}»</span>
+              </div>
             </div>
           </section>
         </div>
