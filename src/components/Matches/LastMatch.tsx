@@ -4,6 +4,13 @@ import { getMatchesFeatured } from "@/lib/matches";
 const LastMatch = async () => {
   const featured = await getMatchesFeatured();
   const lastMatch = featured.lastMatch;
+  const matchCenterHref = lastMatch.matchPageSlug
+    ? `/matches/${lastMatch.matchPageSlug}`
+    : "/matches";
+  const hasVideo = Boolean(lastMatch.youtubeVideoId);
+  const videoHref = lastMatch.matchPageSlug
+    ? matchCenterHref
+    : `https://www.youtube.com/watch?v=${lastMatch.youtubeVideoId}`;
 
   return (
     <section className="bg-body-color/5 py-16 dark:bg-white/5 md:py-20">
@@ -31,17 +38,21 @@ const LastMatch = async () => {
             </span>
           </div>
           <div className="mt-6 flex flex-wrap justify-center gap-4">
+            {hasVideo ? (
+              <Link
+                href={videoHref}
+                target={lastMatch.matchPageSlug ? undefined : "_blank"}
+                rel={lastMatch.matchPageSlug ? undefined : "noopener noreferrer"}
+                className="inline-flex items-center gap-2 rounded border border-primary px-4 py-2 text-primary hover:bg-primary/10"
+              >
+                Відео матчу
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            ) : null}
             <Link
-              href="/video"
-              className="inline-flex items-center gap-2 rounded border border-primary px-4 py-2 text-primary hover:bg-primary/10"
-            >
-              Відео матчу
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-            <Link
-              href="/matches"
+              href={matchCenterHref}
               className="inline-flex items-center gap-2 rounded bg-primary px-4 py-2 text-white hover:bg-primary/90"
             >
               Матч-центр

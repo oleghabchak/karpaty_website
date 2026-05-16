@@ -9,7 +9,8 @@ const links = [
   { href: "/admin/news", label: "Новини" },
   { href: "/admin/table", label: "Таблиця" },
   { href: "/admin/u19-table", label: "U-19 таблиця" },
-  { href: "/admin/matches", label: "Матчі" },
+  { href: "/admin/matches", label: "Перед/наступні матчі" },
+  { href: "/admin/match-pages", label: "Матч-центр" },
 ] as const;
 
 export default function AdminNavBar() {

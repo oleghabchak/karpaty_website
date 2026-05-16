@@ -5,6 +5,7 @@ import CalendarTeaser from "@/components/Matches/CalendarTeaser";
 import NextMatch from "@/components/Matches/NextMatch";
 import { Metadata } from "next";
 import LastMatch from "@/components/Matches/LastMatch";
+import MatchPagesList from "@/components/Matches/MatchPagesList";
 
 export const metadata: Metadata = {
   title: "Матчі | ФК «Уличне»",
@@ -20,6 +21,7 @@ export default function MatchesPage() {
       />
       <NextMatch />
       <LastMatch />
+      <MatchPagesList />
       <section id="table">
         <TableTeaser />
       </section>

@@ -4,6 +4,9 @@ import { getMatchesFeatured } from "@/lib/matches";
 const NextMatch = async () => {
   const featured = await getMatchesFeatured();
   const nextMatch = featured.nextMatch;
+  const matchCenterHref = nextMatch.matchPageSlug
+    ? `/matches/${nextMatch.matchPageSlug}`
+    : "/matches";
 
   return (
     <section className="bg-white py-16 dark:bg-gray-dark md:py-20">
@@ -32,7 +35,7 @@ const NextMatch = async () => {
           </div>
           <div className="mt-6 text-center">
             <Link
-              href="/matches"
+              href={matchCenterHref}
               className="inline-flex items-center gap-2 rounded bg-primary px-6 py-3 text-white hover:bg-primary/90"
             >
               Матч-центр

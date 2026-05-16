@@ -10,6 +10,7 @@ import {
   stripUndefinedDeep,
   type MatchesFeaturedDoc,
 } from "@/lib/matches";
+import { parseYoutubeVideoId } from "@/lib/youtube-utils";
 import type { Match } from "@/types/match";
 
 function getField(formData: FormData, key: string) {
@@ -32,6 +33,19 @@ function parseMatch(input: unknown): Match | null {
   if (tour === null) return null;
 
   const competition = typeof m.competition === "string" ? m.competition : undefined;
+  const matchPageSlugRaw = typeof m.matchPageSlug === "string" ? m.matchPageSlug.trim() : "";
+  const matchPageSlug = matchPageSlugRaw.length ? matchPageSlugRaw : undefined;
+
+  const youtubeVideoIdRaw = typeof m.youtubeVideoId === "string" ? m.youtubeVideoId.trim() : "";
+  const youtubeUrlRaw = typeof m.youtubeUrl === "string" ? m.youtubeUrl.trim() : "";
+  let youtubeVideoId: string | undefined;
+  if (youtubeVideoIdRaw) {
+    youtubeVideoId = youtubeVideoIdRaw;
+  } else if (youtubeUrlRaw) {
+    const parsed = parseYoutubeVideoId(youtubeUrlRaw);
+    if (!parsed) return null;
+    youtubeVideoId = parsed;
+  }
 
   const homeScoreRaw = m.homeScore;
   const homeScore =
@@ -62,6 +76,8 @@ function parseMatch(input: unknown): Match | null {
     venue,
     ...(tour == null ? {} : { tour }),
     competition,
+    matchPageSlug,
+    youtubeVideoId,
     ...(homeScore == null ? {} : { homeScore }),
     ...(awayScore == null ? {} : { awayScore }),
   };

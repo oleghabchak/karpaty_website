@@ -46,6 +46,11 @@ function mapMatch(input: unknown): Match | null {
   const venue = typeof m.venue === "string" ? m.venue : undefined;
   const tour = typeof m.tour === "number" && Number.isFinite(m.tour) ? m.tour : m.tour != null ? Number(m.tour) : undefined;
   const competition = typeof m.competition === "string" ? m.competition : undefined;
+  const matchPageSlug = typeof m.matchPageSlug === "string" ? m.matchPageSlug.trim() : undefined;
+  const youtubeVideoId =
+    typeof m.youtubeVideoId === "string" && m.youtubeVideoId.trim()
+      ? m.youtubeVideoId.trim()
+      : undefined;
 
   const homeScore =
     typeof m.homeScore === "number" && Number.isFinite(m.homeScore)
@@ -74,6 +79,8 @@ function mapMatch(input: unknown): Match | null {
     awayScore,
     tour,
     competition,
+    matchPageSlug: matchPageSlug || undefined,
+    youtubeVideoId,
   };
 }
 

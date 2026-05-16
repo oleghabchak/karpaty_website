@@ -34,7 +34,7 @@ const CalendarTeaser = async () => {
                 «{m.homeTeam}» – «{m.awayTeam}»
               </span>
               <Link
-                href="/matches"
+                href={m.matchPageSlug ? `/matches/${m.matchPageSlug}` : "/matches"}
                 className="text-sm text-primary hover:underline"
               >
                 Переглянути

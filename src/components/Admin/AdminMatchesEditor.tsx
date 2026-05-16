@@ -1,14 +1,147 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import type { Match } from "@/types/match";
 import type { MatchesFeaturedDoc } from "@/lib/matches";
 import { useRouter } from "next/navigation";
 import { resetMatchesAction, saveMatches } from "@/app/admin/matches/actions";
+import { parseYoutubeVideoId } from "@/lib/youtube-utils";
+
+export type MatchPageSlugOption = {
+  slug: string;
+  title: string;
+  date: string;
+  time?: string;
+  homeTeam: string;
+  awayTeam: string;
+  homeScore?: number;
+  awayScore?: number;
+  venue?: string;
+  tour?: number;
+  competition?: string;
+  youtubeVideoId?: string;
+};
 
 type AdminMatchesEditorProps = {
   initialFeatured: MatchesFeaturedDoc;
+  matchPageSlugOptions: MatchPageSlugOption[];
 };
+
+const slugFieldInputClass =
+  "border-stroke dark:bg-dark dark:border-white/10 dark:text-white w-full rounded-xs border px-3 py-2 outline-hidden focus:border-primary";
+
+function MatchPageSlugField({
+  value,
+  onChange,
+  options,
+  onSelectPage,
+  label = "Сторінка матч-центру",
+  hint,
+}: {
+  value?: string;
+  onChange: (slug: string | undefined) => void;
+  options: MatchPageSlugOption[];
+  onSelectPage?: (page: MatchPageSlugOption) => void;
+  label?: string;
+  hint?: string;
+}) {
+  const knownSlugs = new Set(options.map((o) => o.slug));
+  const [manualMode, setManualMode] = useState(() =>
+    Boolean(value && !knownSlugs.has(value)),
+  );
+
+  const selectedPage = value ? options.find((o) => o.slug === value) : undefined;
+
+  function handleSelectChange(slug: string) {
+    if (!slug) {
+      onChange(undefined);
+      return;
+    }
+    setManualMode(false);
+    onChange(slug);
+    const page = options.find((o) => o.slug === slug);
+    if (page && onSelectPage) {
+      onSelectPage(page);
+    }
+  }
+
+  return (
+    <div className="space-y-2 sm:col-span-2">
+      <p className="text-sm font-medium text-black dark:text-white">{label}</p>
+      {hint ? (
+        <p className="text-body-color text-xs dark:text-body-color-dark">{hint}</p>
+      ) : null}
+
+      {options.length === 0 ? (
+        <p className="text-body-color text-xs dark:text-body-color-dark">
+          Немає сторінок матч-центру.{" "}
+          <Link href="/admin/match-pages/new" className="text-primary hover:underline">
+            Створити сторінку матчу
+          </Link>
+        </p>
+      ) : (
+        <label className="block text-sm">
+          Обрати з наявних
+          <select
+            value={manualMode ? "" : (value ?? "")}
+            onChange={(e) => handleSelectChange(e.target.value)}
+            className={`mt-1 ${slugFieldInputClass}`}
+          >
+            <option value="">— не прив&apos;язано —</option>
+            {options.map((o) => (
+              <option key={o.slug} value={o.slug}>
+                {o.title} · {o.date} · «{o.homeTeam}» – «{o.awayTeam}»
+                {o.homeScore != null && o.awayScore != null
+                  ? ` (${o.homeScore}:${o.awayScore})`
+                  : ""}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
+
+      <label className="flex items-center gap-2 text-xs text-body-color dark:text-body-color-dark">
+        <input
+          type="checkbox"
+          checked={manualMode}
+          onChange={(e) => setManualMode(e.target.checked)}
+          className="h-4 w-4 rounded border-body-color/20"
+        />
+        Ввести slug вручну
+      </label>
+
+      {manualMode ? (
+        <label className="block text-sm">
+          Slug
+          <input
+            type="text"
+            value={value ?? ""}
+            onChange={(e) => onChange(parseOptionalString(e.target.value))}
+            placeholder="ulychne-vs-stebnik-10-05-2026"
+            className={`mt-1 ${slugFieldInputClass}`}
+          />
+        </label>
+      ) : null}
+
+      {selectedPage && onSelectPage ? (
+        <button
+          type="button"
+          onClick={() => onSelectPage(selectedPage)}
+          className="rounded-xs border border-primary px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/10"
+        >
+          Заповнити поля матчу з обраної сторінки
+        </button>
+      ) : null}
+
+      {value && !manualMode ? (
+        <p className="text-body-color text-xs dark:text-body-color-dark">
+          Посилання: /matches/{value}
+        </p>
+      ) : null}
+    </div>
+  );
+}
 
 function parseOptionalString(v: string) {
   const trimmed = v.trim();
@@ -22,9 +155,17 @@ function parseOptionalNumber(v: string) {
   return Number.isFinite(n) ? n : undefined;
 }
 
-export default function AdminMatchesEditor({ initialFeatured }: AdminMatchesEditorProps) {
+export default function AdminMatchesEditor({
+  initialFeatured,
+  matchPageSlugOptions,
+}: AdminMatchesEditorProps) {
   const [nextMatch, setNextMatch] = useState<Match>(initialFeatured.nextMatch);
   const [lastMatch, setLastMatch] = useState<Match>(initialFeatured.lastMatch);
+  const [lastMatchYoutubeUrl, setLastMatchYoutubeUrl] = useState(() =>
+    initialFeatured.lastMatch.youtubeVideoId
+      ? `https://www.youtube.com/watch?v=${initialFeatured.lastMatch.youtubeVideoId}`
+      : "",
+  );
   const [upcomingMatches, setUpcomingMatches] = useState<Match[]>(initialFeatured.upcomingMatches);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,6 +188,7 @@ export default function AdminMatchesEditor({ initialFeatured }: AdminMatchesEdit
         venue: undefined,
         tour: undefined,
         competition: undefined,
+        matchPageSlug: undefined,
       },
     ]);
   }
@@ -67,8 +209,43 @@ export default function AdminMatchesEditor({ initialFeatured }: AdminMatchesEdit
     setLastMatch((prev) => ({ ...prev, ...patch }));
   }
 
+  function applyLastMatchFromPage(page: MatchPageSlugOption) {
+    setLastMatch((prev) => ({
+      ...prev,
+      matchPageSlug: page.slug,
+      date: page.date,
+      time: page.time,
+      homeTeam: page.homeTeam,
+      awayTeam: page.awayTeam,
+      homeScore: page.homeScore,
+      awayScore: page.awayScore,
+      venue: page.venue,
+      tour: page.tour,
+      competition: page.competition,
+      youtubeVideoId: page.youtubeVideoId,
+    }));
+    setLastMatchYoutubeUrl(
+      page.youtubeVideoId ? `https://www.youtube.com/watch?v=${page.youtubeVideoId}` : "",
+    );
+  }
+
+  function updateLastMatchYoutubeUrl(url: string) {
+    setLastMatchYoutubeUrl(url);
+    const trimmed = url.trim();
+    if (!trimmed) {
+      updateLastMatch({ youtubeVideoId: undefined });
+      return;
+    }
+    const id = parseYoutubeVideoId(trimmed);
+    updateLastMatch({ youtubeVideoId: id ?? undefined });
+  }
+
   async function handleSave() {
     setError(null);
+    if (lastMatchYoutubeUrl.trim() && !lastMatch.youtubeVideoId) {
+      setError("Некоректне посилання YouTube для попереднього матчу.");
+      return;
+    }
     setSaving(true);
     try {
       const formData = new FormData();
@@ -208,6 +385,11 @@ export default function AdminMatchesEditor({ initialFeatured }: AdminMatchesEdit
                   className="border-stroke dark:bg-dark dark:border-white/10 dark:text-white w-full rounded-xs border px-3 py-2 outline-hidden focus:border-primary"
                 />
               </label>
+              <MatchPageSlugField
+                value={nextMatch.matchPageSlug}
+                onChange={(matchPageSlug) => updateNextMatch({ matchPageSlug })}
+                options={matchPageSlugOptions}
+              />
             </div>
             <div className="rounded-xs border border-dashed border-body-color/20 bg-body-color/5 p-4 dark:border-white/10 dark:bg-white/5">
               <p className="text-body-color mb-3 text-xs font-medium uppercase tracking-wide dark:text-body-color-dark">
@@ -230,6 +412,16 @@ export default function AdminMatchesEditor({ initialFeatured }: AdminMatchesEdit
 
           <section className="space-y-3 rounded-xs border border-body-color/10 bg-white p-4 dark:border-white/10 dark:bg-gray-dark">
             <h3 className="text-dark text-lg font-semibold dark:text-white">Попередній матч</h3>
+            <div className="rounded-xs border border-primary/20 bg-primary/5 p-3 dark:bg-primary/10">
+              <MatchPageSlugField
+                value={lastMatch.matchPageSlug}
+                onChange={(matchPageSlug) => updateLastMatch({ matchPageSlug })}
+                onSelectPage={applyLastMatchFromPage}
+                options={matchPageSlugOptions}
+                label="Прив'язати до сторінки матч-центру"
+                hint="Оберіть існуючу сторінку — дата, команди та рахунок заповняться автоматично."
+              />
+            </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <label className="text-sm">
                 Дата
@@ -303,6 +495,25 @@ export default function AdminMatchesEditor({ initialFeatured }: AdminMatchesEdit
                   className="border-stroke dark:bg-dark dark:border-white/10 dark:text-white w-full rounded-xs border px-3 py-2 outline-hidden focus:border-primary"
                 />
               </label>
+              <label className="text-sm sm:col-span-2">
+                YouTube URL (опц.)
+                <input
+                  type="text"
+                  value={lastMatchYoutubeUrl}
+                  onChange={(e) => updateLastMatchYoutubeUrl(e.target.value)}
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  className="border-stroke dark:bg-dark dark:border-white/10 dark:text-white w-full rounded-xs border px-3 py-2 outline-hidden focus:border-primary"
+                />
+              </label>
+              {lastMatch.youtubeVideoId ? (
+                <p className="text-body-color text-xs sm:col-span-2 dark:text-body-color-dark">
+                  Відео на сайті: кнопка «Відео матчу» буде показана (ID: {lastMatch.youtubeVideoId})
+                </p>
+              ) : (
+                <p className="text-body-color text-xs sm:col-span-2 dark:text-body-color-dark">
+                  Без URL кнопка «Відео матчу» на головній не відображається.
+                </p>
+              )}
             </div>
             <div className="rounded-xs border border-dashed border-body-color/20 bg-body-color/5 p-4 dark:border-white/10 dark:bg-white/5">
               <p className="text-body-color mb-3 text-xs font-medium uppercase tracking-wide dark:text-body-color-dark">
@@ -409,6 +620,11 @@ export default function AdminMatchesEditor({ initialFeatured }: AdminMatchesEdit
                       className="border-stroke dark:bg-dark dark:border-white/10 dark:text-white w-full rounded-xs border px-3 py-2 outline-hidden focus:border-primary"
                     />
                   </label>
+                  <MatchPageSlugField
+                    value={m.matchPageSlug}
+                    onChange={(matchPageSlug) => updateUpcomingMatch(index, { matchPageSlug })}
+                    options={matchPageSlugOptions}
+                  />
                 </div>
               </div>
             ))}

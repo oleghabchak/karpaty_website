@@ -11,4 +11,6 @@ export type Match = {
   awayScore?: number;
   tour?: number;
   competition?: string;
+  matchPageSlug?: string;
+  youtubeVideoId?: string;
 };
