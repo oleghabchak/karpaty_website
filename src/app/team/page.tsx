@@ -1,12 +1,14 @@
 import Breadcrumb from "@/components/Common/Breadcrumb";
 import { teamData } from "@/data/teamData";
-import { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
 import Image from "next/image";
 
-export const metadata: Metadata = {
-  title: "Команда | ФК «Уличне»",
-  description: "Склад основної команди ФК «Уличне».",
-};
+export const metadata = buildPageMetadata({
+  title: "Склад команди",
+  description:
+    "Склад ФК «Уличне» / ФК Карпати Уличне — футбол у селі Улич та Дрогобицькому районі.",
+  path: "/team",
+});
 
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);

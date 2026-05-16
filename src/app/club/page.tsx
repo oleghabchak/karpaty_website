@@ -1,11 +1,13 @@
 import Breadcrumb from "@/components/Common/Breadcrumb";
 import Link from "next/link";
-import { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Клуб | ФК «Уличне»",
-  description: "Інформація про клуб: менеджмент, інфраструктура, партнери.",
-};
+export const metadata = buildPageMetadata({
+  title: "Клуб",
+  description:
+    "ФК «Уличне» (Карпати Уличне): історія, менеджмент, інфраструктура та партнери. Футбол у селі Улич, Дрогобичський район.",
+  path: "/club",
+});
 
 const links = [
   { href: "/club/management", title: "Менеджмент" },

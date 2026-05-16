@@ -1,11 +1,14 @@
 import Link from "next/link";
 
-import { Metadata } from "next";
+import { buildPageMetadata, NOINDEX_ROBOTS } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Sign Up Page | Free Next.js Template for Startup and SaaS",
-  description: "This is Sign Up Page for Startup Nextjs Template",
-  // other metadata
+export const metadata = {
+  ...buildPageMetadata({
+    title: "Реєстрація",
+    description: "Службова сторінка реєстрації.",
+    path: "/signup",
+  }),
+  robots: NOINDEX_ROBOTS,
 };
 
 const SignupPage = () => {

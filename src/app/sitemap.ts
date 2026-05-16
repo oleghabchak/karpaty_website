@@ -1,27 +1,60 @@
 import { MetadataRoute } from "next";
+import { getPublishedMatchPages } from "@/lib/match-pages";
+import { getLatestPostsServer } from "@/lib/posts-server";
+import { absoluteUrl, getSiteUrl } from "@/lib/seo";
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
-  "https://karpaty-website.vercel.app";
+export const revalidate = 3600;
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const base = siteUrl || "https://karpaty-website.vercel.app";
+function parseLastModified(value?: string): Date {
+  if (!value) return new Date();
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
+}
 
-  const routes: MetadataRoute.Sitemap = [
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const base = getSiteUrl();
+
+  const staticRoutes: MetadataRoute.Sitemap = [
     { url: base, lastModified: new Date(), changeFrequency: "daily", priority: 1 },
-    { url: `${base}/team`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.9 },
-    { url: `${base}/matches`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
-    { url: `${base}/news`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
-    { url: `${base}/club`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
-    { url: `${base}/photo`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.7 },
-    { url: `${base}/history`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.6 },
-    { url: `${base}/contact`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
-    { url: `${base}/u19`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.7 },
-    { url: `${base}/academy`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.6 },
-    { url: `${base}/video`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.6 },
-    { url: `${base}/tribune`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.5 },
+    { url: absoluteUrl("/team"), lastModified: new Date(), changeFrequency: "weekly", priority: 0.9 },
+    { url: absoluteUrl("/matches"), lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
+    { url: absoluteUrl("/news"), lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
+    { url: absoluteUrl("/club"), lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
+    { url: absoluteUrl("/photo"), lastModified: new Date(), changeFrequency: "weekly", priority: 0.7 },
+    { url: absoluteUrl("/history"), lastModified: new Date(), changeFrequency: "weekly", priority: 0.6 },
+    { url: absoluteUrl("/contact"), lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
+    { url: absoluteUrl("/u19"), lastModified: new Date(), changeFrequency: "weekly", priority: 0.7 },
+    { url: absoluteUrl("/academy"), lastModified: new Date(), changeFrequency: "weekly", priority: 0.6 },
+    { url: absoluteUrl("/video"), lastModified: new Date(), changeFrequency: "weekly", priority: 0.6 },
+    { url: absoluteUrl("/tribune"), lastModified: new Date(), changeFrequency: "monthly", priority: 0.5 },
   ];
 
-  return routes;
+  let newsRoutes: MetadataRoute.Sitemap = [];
+  let matchRoutes: MetadataRoute.Sitemap = [];
+
+  try {
+    const posts = await getLatestPostsServer(500);
+    newsRoutes = posts.map((post) => ({
+      url: absoluteUrl(`/news/${post.slug}`),
+      lastModified: parseLastModified(post.publishedAt ?? post.createdAt),
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    }));
+  } catch {
+    newsRoutes = [];
+  }
+
+  try {
+    const matchPages = await getPublishedMatchPages();
+    matchRoutes = matchPages.map((page) => ({
+      url: absoluteUrl(`/matches/${page.slug}`),
+      lastModified: parseLastModified(page.updatedAt ?? page.date),
+      changeFrequency: "weekly" as const,
+      priority: 0.75,
+    }));
+  } catch {
+    matchRoutes = [];
+  }
+
+  return [...staticRoutes, ...newsRoutes, ...matchRoutes];
 }

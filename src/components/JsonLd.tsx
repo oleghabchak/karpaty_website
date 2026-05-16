@@ -1,39 +1,61 @@
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
-  "https://karpaty-website.vercel.app";
+import {
+  DEFAULT_DESCRIPTION,
+  getSiteUrl,
+  ORGANIZATION_ALTERNATE_NAMES,
+  SITE_NAME,
+} from "@/lib/seo";
 
 export function JsonLd() {
-  const base = siteUrl || "https://karpaty-website.vercel.app";
+  const base = getSiteUrl();
+  const organizationId = `${base}/#organization`;
 
-  const organization = {
+  const sportsTeam = {
     "@context": "https://schema.org",
-    "@type": "SportsOrganization",
-    name: "ФК «Уличне»",
-    alternateName: "FC Ulychne",
+    "@type": "SportsTeam",
+    "@id": organizationId,
+    name: SITE_NAME,
+    alternateName: ORGANIZATION_ALTERNATE_NAMES,
     url: base,
     logo: `${base}/teamLogo/logoWhiteBG.png`,
+    sport: "Soccer",
     sameAs: [
       "https://www.instagram.com/fc.ulychne/",
       "https://www.youtube.com/@FCUlychne/videos",
     ],
-    description:
-      "Офіційний сайт футбольного клубу «Уличне». Новини, матчі, команда, турнірна таблиця.",
+    description: DEFAULT_DESCRIPTION,
     inLanguage: "uk",
-    potentialAction: {
-      "@type": "SearchAction",
-      target: { "@type": "EntryPoint", urlTemplate: `${base}/news?q={search_term_string}` },
-      "query-input": "required name=search_term_string",
-    },
+    areaServed: [
+      {
+        "@type": "Place",
+        name: "село Улич",
+      },
+      {
+        "@type": "AdministrativeArea",
+        name: "Дрогобичський район",
+      },
+      {
+        "@type": "AdministrativeArea",
+        name: "Львівська область",
+      },
+    ],
   };
 
   const website = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "ФК «Уличне»",
+    "@id": `${base}/#website`,
+    name: SITE_NAME,
     url: base,
-    publisher: { "@id": `${base}/#organization` },
     inLanguage: "uk",
+    publisher: { "@id": organizationId },
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${base}/news?q={search_term_string}`,
+      },
+      "query-input": "required name=search_term_string",
+    },
   };
 
   return (
@@ -41,7 +63,7 @@ export function JsonLd() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(organization),
+          __html: JSON.stringify(sportsTeam),
         }}
       />
       <script

@@ -1,12 +1,14 @@
 import Breadcrumb from "@/components/Common/Breadcrumb";
 import NewsListWithLoadMore from "@/components/News/NewsListWithLoadMore";
 import { getPostsPageServer } from "@/lib/posts-server";
-import { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Новини | ФК «Уличне»",
-  description: "Останні новини та події ФК «Уличне».",
-};
+export const metadata = buildPageMetadata({
+  title: "Новини футболу",
+  description:
+    "Новини футболу: ФК «Уличне» (Карпати Уличне) — Уличне, футбол у Уличному та Дрогобицькому районі.",
+  path: "/news",
+});
 
 export const dynamic = "force-dynamic";
 

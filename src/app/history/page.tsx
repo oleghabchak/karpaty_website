@@ -1,11 +1,13 @@
 import Breadcrumb from "@/components/Common/Breadcrumb";
 import Link from "next/link";
-import { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Історія клубу | ФК «Уличне»",
-  description: "Історія футбольного клубу «Уличне» та сторінки сезонів.",
-};
+export const metadata = buildPageMetadata({
+  title: "Історія клубу",
+  description:
+    "Історія ФК «Уличне» (Карпати Уличне) та архів сезонів — футбол у селі Улич, Дрогобичський район.",
+  path: "/history",
+});
 
 const seasons = [
   { href: "/history/season-2025", title: "Сезон 2025" },

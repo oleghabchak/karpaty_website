@@ -5,6 +5,7 @@ import MarkdownContent from "@/components/News/MarkdownContent";
 import MatchYoutubeEmbed from "@/components/Matches/MatchYoutubeEmbed";
 import MatchPageDraftNotice from "@/components/Matches/MatchPageDraftNotice";
 import { getMatchPageBySlug, getMatchPageBySlugAny } from "@/lib/match-pages";
+import { buildPageMetadata } from "@/lib/seo";
 
 type MatchCenterPageProps = {
   params: Promise<{ slug: string }>;
@@ -22,10 +23,11 @@ export async function generateMetadata({ params }: MatchCenterPageProps): Promis
     page.competition ??
     `«${page.homeTeam}» — «${page.awayTeam}», ${page.date}`;
 
-  return {
-    title: `${page.title} | Матч-центр | ФК «Уличне»`,
+  return buildPageMetadata({
+    title: `${page.title} | Матч-центр`,
     description,
-  };
+    path: `/matches/${slug}`,
+  });
 }
 
 export default async function MatchCenterPage({ params }: MatchCenterPageProps) {

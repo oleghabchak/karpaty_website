@@ -8,14 +8,15 @@ import NewsSection from "@/components/News";
 import TeamTeaser from "@/components/Team/TeamTeaser";
 import Video from "@/components/Video";
 import Contact from "@/components/Contact";
-import { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
 import LastMatch from "@/components/Matches/LastMatch";
 
-export const metadata: Metadata = {
-  title: "ФК «Уличне» — Офіційний сайт",
+export const metadata = buildPageMetadata({
+  title: "ФК «Уличне» (Карпати) — футбол у Уличному",
   description:
-    "Офіційний сайт футбольного клубу «Уличне». Новини, матчі, команда, турнірна таблиця.",
-};
+    "Футбол у селі Уличне, у Уличному та Дрогобицькому районі: офіційний сайт ФК «Уличне» / ФК Карпати Уличне — новини, матчі, склад, таблиця та календар.",
+  path: "/",
+});
 
 export default function Home() {
   return (

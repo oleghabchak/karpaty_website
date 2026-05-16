@@ -2,12 +2,15 @@ import AboutSectionOne from "@/components/About/AboutSectionOne";
 import AboutSectionTwo from "@/components/About/AboutSectionTwo";
 import Breadcrumb from "@/components/Common/Breadcrumb";
 
-import { Metadata } from "next";
+import { buildPageMetadata, NOINDEX_ROBOTS } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "About Page | Free Next.js Template for Startup and SaaS",
-  description: "This is About Page for Startup Nextjs Template",
-  // other metadata
+export const metadata = {
+  ...buildPageMetadata({
+    title: "Про шаблон",
+    description: "Службова сторінка шаблону (не індексується).",
+    path: "/about",
+  }),
+  robots: NOINDEX_ROBOTS,
 };
 
 const AboutPage = () => {

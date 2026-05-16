@@ -1,12 +1,8 @@
 import { MetadataRoute } from "next";
-
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
-  "https://karpaty-website.vercel.app";
+import { getSiteUrl } from "@/lib/seo";
 
 export default function robots(): MetadataRoute.Robots {
-  const base = siteUrl || "https://karpaty-website.vercel.app";
+  const base = getSiteUrl();
 
   return {
     rules: {

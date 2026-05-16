@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Breadcrumb from "@/components/Common/Breadcrumb";
 import MarkdownContent from "@/components/News/MarkdownContent";
 import { getPostBySlugServer } from "@/lib/posts-server";
+import { buildPageMetadata } from "@/lib/seo";
 
 type NewsPostPageProps = {
   params: Promise<{ slug: string }>;
@@ -20,10 +21,11 @@ export async function generateMetadata({
     };
   }
 
-  return {
-    title: `${post.title} | ФК «Уличне»`,
+  return buildPageMetadata({
+    title: post.title,
     description: post.excerpt,
-  };
+    path: `/news/${slug}`,
+  });
 }
 
 export default async function NewsPostPage({ params }: NewsPostPageProps) {

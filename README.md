@@ -44,6 +44,17 @@ Startup Pro - Expertly crafted for fully-functional, high-performing SaaS startu
 
 - [🔌 Documentation](https://nextjstemplates.com/docs)
 
+### SEO (Google) на Vercel
+
+У **Production** додайте змінні середовища:
+
+- `NEXT_PUBLIC_SITE_URL=https://fculychne.space` — canonical URL, sitemap і Open Graph
+- `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` (опційно) — код підтвердження з Google Search Console
+
+Після деплою: [Google Search Console](https://search.google.com/search-console) → додати властивість `https://fculychne.space` → надіслати sitemap `https://fculychne.space/sitemap.xml`.
+
+Приклад змінних: див. `.env.example`.
+
 ### ⚡ Deploy Now
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FNextJSTemplates%2Fstartup-nextjs)

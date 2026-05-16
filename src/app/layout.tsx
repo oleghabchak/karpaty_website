@@ -2,64 +2,53 @@ import { LayoutClient } from "@/components/LayoutClient";
 import { JsonLd } from "@/components/JsonLd";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import {
+  DEFAULT_DESCRIPTION,
+  DEFAULT_TITLE,
+  getGoogleSiteVerification,
+  getSiteUrl,
+  SEO_KEYWORDS,
+  SITE_NAME,
+} from "@/lib/seo";
 import "../styles/index.css";
 
 const inter = Inter({ subsets: ["latin", "cyrillic"] });
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
-  "https://karpaty-website.vercel.app";
+const siteUrl = getSiteUrl();
+const googleVerification = getGoogleSiteVerification();
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "ФК «Уличне» — Офіційний сайт футбольного клубу",
-    template: "%s | ФК «Уличне»",
+    default: DEFAULT_TITLE,
+    template: `%s | ${SITE_NAME}`,
   },
-  description:
-    "Офіційний сайт футбольного клубу «Уличне». Новини, матчі, команда, турнірна таблиця, календар ігор. Україна.",
-  keywords: [
-    "футбол уличне",
-    "фк уличне",
-    "уличне",
-    "карпати уличне",
-    "футбол дрогобицький район",
-    "футбол трускавець",
-    "футбол львівська область",
-    "ФК Уличне",
-    "Уличне футбол",
-    "футбольний клуб Уличне",
-    "Україна футбол",
-    "новини футбол",
-    "матчі Уличне",
-  ],
-  authors: [{ name: "ФК Уличне" }],
-  creator: "ФК Уличне",
-  publisher: "ФК Уличне",
+  description: DEFAULT_DESCRIPTION,
+  keywords: SEO_KEYWORDS,
+  authors: [{ name: SITE_NAME }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
   formatDetection: { email: false, address: false, telephone: false },
   openGraph: {
     type: "website",
     locale: "uk_UA",
     url: siteUrl,
-    siteName: "ФК «Уличне»",
-    title: "ФК «Уличне» — Офіційний сайт футбольного клубу",
-    description:
-      "Офіційний сайт футбольного клубу «Уличне». Новини, матчі, команда, турнірна таблиця.",
+    siteName: SITE_NAME,
+    title: DEFAULT_TITLE,
+    description: DEFAULT_DESCRIPTION,
     images: [
       {
         url: "/teamLogo/logoWhiteBG.png",
         width: 768,
         height: 768,
-        alt: "ФК Уличне",
+        alt: SITE_NAME,
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "ФК «Уличне» — Офіційний сайт",
-    description:
-      "Офіційний сайт футбольного клубу «Уличне». Новини, матчі, команда.",
+    title: DEFAULT_TITLE,
+    description: DEFAULT_DESCRIPTION,
   },
   icons: {
     icon: "/teamLogo/logo_noBG.png",
@@ -77,11 +66,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: siteUrl,
   },
-  verification: {
-    // Optional: add when you have them
-    // google: "your-google-verification-code",
-    // yandex: "your-yandex-verification-code",
-  },
+  ...(googleVerification
+    ? { verification: { google: googleVerification } }
+    : {}),
 };
 
 export default function RootLayout({

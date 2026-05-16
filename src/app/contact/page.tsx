@@ -1,12 +1,14 @@
 import Breadcrumb from "@/components/Common/Breadcrumb";
 import Contact from "@/components/Contact";
 
-import { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Контакти | ФК «Уличне»",
-  description: "Контактна інформація ФК «Уличне».",
-};
+export const metadata = buildPageMetadata({
+  title: "Контакти",
+  description:
+    "Зв'яжіться з ФК «Уличне» — футбольний клуб у селі Улич, Дрогобичський район, Львівська область.",
+  path: "/contact",
+});
 
 const ContactPage = () => {
   return (

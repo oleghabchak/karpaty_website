@@ -3,14 +3,16 @@ import TableTeaser from "@/components/Matches/TableTeaser";
 import FriendlyMatchesTeaser from "@/components/Matches/FriendlyMatchesTeaser";
 import CalendarTeaser from "@/components/Matches/CalendarTeaser";
 import NextMatch from "@/components/Matches/NextMatch";
-import { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
 import LastMatch from "@/components/Matches/LastMatch";
 import MatchPagesList from "@/components/Matches/MatchPagesList";
 
-export const metadata: Metadata = {
-  title: "Матчі | ФК «Уличне»",
-  description: "Календар матчів та турнірна таблиця ФК «Уличне».",
-};
+export const metadata = buildPageMetadata({
+  title: "Матчі та календар",
+  description:
+    "Календар матчів і результати ФК «Уличне» (Карпати Уличне) — футбол у Уличному та Дрогобицькому районі.",
+  path: "/matches",
+});
 
 export default function MatchesPage() {
   return (
