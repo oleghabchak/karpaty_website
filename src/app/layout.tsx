@@ -51,9 +51,12 @@ export const metadata: Metadata = {
     description: DEFAULT_DESCRIPTION,
   },
   icons: {
-    icon: "/teamLogo/logo_noBG.png",
-    shortcut: "/teamLogo/logo_noBG.png",
-    apple: "/teamLogo/logo_noBG.png",
+    icon: [
+      { url: "/favicon-48.png", sizes: "48x48", type: "image/png" },
+      { url: "/teamLogo/logoWhiteBG.png", sizes: "192x192", type: "image/png" },
+    ],
+    shortcut: "/favicon-48.png",
+    apple: "/teamLogo/logoWhiteBG.png",
   },
   robots: {
     index: true,

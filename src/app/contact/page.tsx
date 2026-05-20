@@ -6,7 +6,7 @@ import { buildPageMetadata } from "@/lib/seo";
 export const metadata = buildPageMetadata({
   title: "Контакти",
   description:
-    "Зв'яжіться з ФК «Уличне» — футбольний клуб у селі Улич, Дрогобичський район, Львівська область.",
+    "Зв'яжіться з ФК «Уличне» — футбольний клуб у селі Уличне, Дрогобичський район, Львівська область.",
   path: "/contact",
 });
 

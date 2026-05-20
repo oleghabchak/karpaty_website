@@ -5,7 +5,7 @@ import { buildPageMetadata } from "@/lib/seo";
 export const metadata = buildPageMetadata({
   title: "Історія клубу",
   description:
-    "Історія ФК «Уличне» (Карпати Уличне) та архів сезонів — футбол у селі Улич, Дрогобичський район.",
+    "Історія ФК «Уличне» (Карпати Уличне) та архів сезонів — футбол у селі Уличне, Дрогобичський район.",
   path: "/history",
 });
 
