@@ -6,6 +6,10 @@ import MarkdownContent from "@/components/News/MarkdownContent";
 import PostCard from "@/components/News/PostCard";
 import { createPostClient } from "@/lib/posts";
 import { revalidatePost } from "@/app/admin/news/actions";
+import {
+  insertImagesBetweenParagraphs,
+  uploadImageToCloudinary,
+} from "@/lib/post-body-images";
 import { formatPublishDate, normalizeGoogleDriveImageUrl, splitTags } from "@/lib/post-utils";
 import type { Post } from "@/types/post";
 
@@ -73,9 +77,9 @@ export default function AdminNewsEditor({
     }
   }
 
-  async function handleImageUpload(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file || !cloudName || !uploadPreset) {
+  async function handleImagesUpload(event: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files ?? []);
+    if (!files.length || !cloudName || !uploadPreset) {
       return;
     }
 
@@ -83,31 +87,19 @@ export default function AdminNewsEditor({
     setUploadError("");
 
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", uploadPreset);
-
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-        {
-          method: "POST",
-          body: formData,
-        }
+      const urls = await Promise.all(
+        files.map((file) => uploadImageToCloudinary(file, cloudName, uploadPreset))
       );
 
-      if (!response.ok) {
-        throw new Error("Cloudinary upload failed.");
+      if (urls[0]) {
+        setImage(urls[0]);
       }
 
-      const payload = await response.json();
-      const secureUrl =
-        typeof payload.secure_url === "string" ? payload.secure_url : "";
-
-      if (!secureUrl) {
-        throw new Error("Cloudinary did not return an image URL.");
+      if (urls.length > 1) {
+        setBodyMarkdown((prev) =>
+          insertImagesBetweenParagraphs(prev, urls.slice(1))
+        );
       }
-
-      setImage(secureUrl);
     } catch (error) {
       console.error(error);
       setUploadError("Не вдалося завантажити зображення в Cloudinary.");
@@ -158,7 +150,9 @@ export default function AdminNewsEditor({
               Створити новину
             </h2>
             <p className="text-body-color mt-2 text-sm dark:text-body-color-dark">
-              Завантажуйте зображення в Cloudinary або вставляйте прямий URL.
+              Завантажуйте одне або кілька фото: перше — обкладинка, решта
+              з&apos;являться в тексті між абзацами. Також можна вставити прямий
+              URL обкладинки.
             </p>
           </div>
 
@@ -220,7 +214,8 @@ export default function AdminNewsEditor({
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={handleImageUpload}
+                  multiple
+                  onChange={handleImagesUpload}
                   disabled={!canUploadToCloudinary || isUploadingImage}
                   className="text-body-color dark:text-body-color-dark block w-full text-sm file:mr-4 file:rounded-xs file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-primary/90 disabled:opacity-60"
                 />
@@ -228,7 +223,7 @@ export default function AdminNewsEditor({
                   {canUploadToCloudinary
                     ? isUploadingImage
                       ? "Завантаження в Cloudinary..."
-                      : "Після завантаження URL автоматично підставиться в поле вище."
+                      : "Перше фото — обкладинка; додаткові вставляються в Markdown між абзацами."
                     : "Додайте `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` і `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET` у `.env.local`."}
                 </p>
                 {uploadError ? (
