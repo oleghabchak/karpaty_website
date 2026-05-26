@@ -17,6 +17,7 @@ export type Post = {
   publishedAt: string;
   createdAt?: string;
   updatedAt?: string;
+  youtubeVideoId?: string;
 };
 
 export type CreatePostInput = {
@@ -27,4 +28,5 @@ export type CreatePostInput = {
   tags: string[];
   publishDate?: string;
   author?: Partial<PostAuthor>;
+  youtubeVideoId?: string;
 };

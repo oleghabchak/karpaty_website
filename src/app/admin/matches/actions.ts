@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { isAdminAuthenticated, createAdminSession, clearAdminSession, getAdminSecret } from "@/lib/admin-session";
+import { FieldValue } from "firebase-admin/firestore";
 import { getAdminFirestore } from "@/lib/firebaseAdminServer";
 import {
   MATCHES_COLLECTION,
@@ -10,7 +11,6 @@ import {
   stripUndefinedDeep,
   type MatchesFeaturedDoc,
 } from "@/lib/matches";
-import { parseYoutubeVideoId } from "@/lib/youtube-utils";
 import type { Match } from "@/types/match";
 
 function getField(formData: FormData, key: string) {
@@ -33,19 +33,13 @@ function parseMatch(input: unknown): Match | null {
   if (tour === null) return null;
 
   const competition = typeof m.competition === "string" ? m.competition : undefined;
-  const matchPageSlugRaw = typeof m.matchPageSlug === "string" ? m.matchPageSlug.trim() : "";
-  const matchPageSlug = matchPageSlugRaw.length ? matchPageSlugRaw : undefined;
-
-  const youtubeVideoIdRaw = typeof m.youtubeVideoId === "string" ? m.youtubeVideoId.trim() : "";
-  const youtubeUrlRaw = typeof m.youtubeUrl === "string" ? m.youtubeUrl.trim() : "";
-  let youtubeVideoId: string | undefined;
-  if (youtubeVideoIdRaw) {
-    youtubeVideoId = youtubeVideoIdRaw;
-  } else if (youtubeUrlRaw) {
-    const parsed = parseYoutubeVideoId(youtubeUrlRaw);
-    if (!parsed) return null;
-    youtubeVideoId = parsed;
-  }
+  const postSlugRaw =
+    typeof m.postSlug === "string"
+      ? m.postSlug.trim()
+      : typeof m.matchPageSlug === "string"
+        ? m.matchPageSlug.trim()
+        : "";
+  const postSlug = postSlugRaw.length ? postSlugRaw : undefined;
 
   const homeScoreRaw = m.homeScore;
   const homeScore =
@@ -76,8 +70,7 @@ function parseMatch(input: unknown): Match | null {
     venue,
     ...(tour == null ? {} : { tour }),
     competition,
-    matchPageSlug,
-    youtubeVideoId,
+    postSlug,
     ...(homeScore == null ? {} : { homeScore }),
     ...(awayScore == null ? {} : { awayScore }),
   };
@@ -91,9 +84,8 @@ function parseMatchesPayload(payload: string): MatchesFeaturedDoc | null {
     const p = parsed as Record<string, unknown>;
 
     const nextMatch = parseMatch(p.nextMatch);
-    const lastMatch = parseMatch(p.lastMatch);
     const upcomingMatchesRaw = p.upcomingMatches;
-    if (!nextMatch || !lastMatch || !Array.isArray(upcomingMatchesRaw)) return null;
+    if (!nextMatch || !Array.isArray(upcomingMatchesRaw)) return null;
 
     const upcomingMatches: Match[] = [];
     for (const item of upcomingMatchesRaw) {
@@ -102,7 +94,7 @@ function parseMatchesPayload(payload: string): MatchesFeaturedDoc | null {
       upcomingMatches.push(m);
     }
 
-    return { nextMatch, lastMatch, upcomingMatches };
+    return { nextMatch, upcomingMatches };
   } catch {
     return null;
   }
@@ -149,7 +141,13 @@ export async function saveMatches(formData: FormData) {
 
   const sanitized = stripUndefinedDeep(parsed);
   const db = getAdminFirestore();
-  await db.collection(MATCHES_COLLECTION).doc(MATCHES_DOC_ID).set(sanitized, { merge: true });
+  await db.collection(MATCHES_COLLECTION).doc(MATCHES_DOC_ID).set(
+    {
+      ...sanitized,
+      lastMatch: FieldValue.delete(),
+    },
+    { merge: true },
+  );
   revalidateMatchesPages();
   return { ok: true as const };
 }

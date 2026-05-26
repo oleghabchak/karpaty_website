@@ -59,6 +59,10 @@ function mapDocToPost(id: string, data: DocumentData): Post {
     publishedAt,
     createdAt: timestampToIso(data.createdAt),
     updatedAt: timestampToIso(data.updatedAt),
+    youtubeVideoId:
+      typeof data.youtubeVideoId === "string" && data.youtubeVideoId.trim()
+        ? data.youtubeVideoId.trim()
+        : undefined,
   };
 }
 

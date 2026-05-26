@@ -9,7 +9,6 @@ import TeamTeaser from "@/components/Team/TeamTeaser";
 import Video from "@/components/Video";
 import Contact from "@/components/Contact";
 import { buildPageMetadata } from "@/lib/seo";
-import LastMatch from "@/components/Matches/LastMatch";
 
 export const metadata = buildPageMetadata({
   title: "ФК «Уличне» (Карпати) — футбол у Уличному",
@@ -24,7 +23,6 @@ export default function Home() {
       <ScrollUp />
       <Hero />
       <NextMatch />
-      <LastMatch />
       <TableTeaser />
       <FriendlyMatchesTeaser />
       <NewsSection />

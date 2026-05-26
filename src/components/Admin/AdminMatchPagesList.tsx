@@ -4,64 +4,64 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { deleteMatchPage, publishMatchPage } from "@/app/admin/match-pages/actions";
-import type { MatchPage } from "@/types/matchPage";
+import type { MatchCenterEntry } from "@/types/matchPage";
 
 type AdminMatchPagesListProps = {
-  pages: MatchPage[];
+  entries: MatchCenterEntry[];
 };
 
-export default function AdminMatchPagesList({ pages }: AdminMatchPagesListProps) {
+export default function AdminMatchPagesList({ entries }: AdminMatchPagesListProps) {
   const router = useRouter();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [publishingId, setPublishingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function handlePublish(page: MatchPage) {
+  async function handlePublish(entry: MatchCenterEntry) {
     setError(null);
-    setPublishingId(page.id);
+    setPublishingId(entry.id);
     try {
       const formData = new FormData();
-      formData.set("id", page.id);
-      formData.set("slug", page.slug);
+      formData.set("id", entry.id);
+      formData.set("postSlug", entry.postSlug ?? "");
       const result = await publishMatchPage(formData);
       if (!result.ok) {
-        setError("Не вдалося опублікувати сторінку.");
+        setError("Не вдалося опублікувати запис.");
         return;
       }
       router.refresh();
     } catch {
-      setError("Не вдалося опублікувати сторінку.");
+      setError("Не вдалося опублікувати запис.");
     } finally {
       setPublishingId(null);
     }
   }
 
-  async function handleDelete(page: MatchPage) {
-    if (!window.confirm(`Видалити сторінку «${page.title}»?`)) return;
+  async function handleDelete(entry: MatchCenterEntry) {
+    if (!window.confirm(`Видалити «${entry.title}»?`)) return;
 
     setError(null);
-    setDeletingId(page.id);
+    setDeletingId(entry.id);
     try {
       const formData = new FormData();
-      formData.set("id", page.id);
-      formData.set("slug", page.slug);
+      formData.set("id", entry.id);
+      formData.set("postSlug", entry.postSlug ?? "");
       const result = await deleteMatchPage(formData);
       if (!result.ok) {
-        setError("Не вдалося видалити сторінку.");
+        setError("Не вдалося видалити запис.");
         return;
       }
       router.refresh();
     } catch {
-      setError("Не вдалося видалити сторінку.");
+      setError("Не вдалося видалити запис.");
     } finally {
       setDeletingId(null);
     }
   }
 
-  if (!pages.length) {
+  if (!entries.length) {
     return (
       <p className="text-body-color text-sm dark:text-body-color-dark">
-        Ще немає сторінок матч-центру. Створіть першу.
+        Ще немає записів матч-центру. Створіть перший.
       </p>
     );
   }
@@ -74,37 +74,35 @@ export default function AdminMatchPagesList({ pages }: AdminMatchPagesListProps)
         </div>
       ) : null}
 
-      {pages.map((page) => (
+      {entries.map((entry) => (
         <div
-          key={page.id}
+          key={entry.id}
           className="flex flex-col gap-3 rounded-xs border border-body-color/10 bg-white p-4 dark:border-white/10 dark:bg-gray-dark sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <div className="font-semibold text-black dark:text-white">{page.title}</div>
+            <div className="font-semibold text-black dark:text-white">{entry.title}</div>
             <p className="text-body-color mt-1 text-sm dark:text-body-color-dark">
-              {page.date}
-              {page.time ? ` · ${page.time}` : ""} · «{page.homeTeam}» – «{page.awayTeam}»
+              {entry.tour != null ? `${entry.tour} тур` : "Без туру"}
+              {entry.postSlug ? ` · /news/${entry.postSlug}` : " · новина не привʼязана"}
             </p>
             <p className="text-body-color mt-1 text-xs dark:text-body-color-dark">
-              /matches/{page.slug}
-              {page.published ? " · опубліковано" : " · чернетка (не видно на сайті)"}
-              {page.youtubeVideoId ? " · відео" : ""}
+              {entry.published ? "опубліковано" : "чернетка (не видно на сайті)"}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            {!page.published ? (
+            {!entry.published ? (
               <button
                 type="button"
-                onClick={() => handlePublish(page)}
-                disabled={publishingId === page.id}
+                onClick={() => handlePublish(entry)}
+                disabled={publishingId === entry.id}
                 className="bg-primary hover:bg-primary/90 rounded-xs px-3 py-1.5 text-sm font-medium text-white disabled:opacity-60"
               >
-                {publishingId === page.id ? "..." : "Опублікувати"}
+                {publishingId === entry.id ? "..." : "Опублікувати"}
               </button>
             ) : null}
-            {page.published ? (
+            {entry.published && entry.postSlug ? (
               <Link
-                href={`/matches/${page.slug}`}
+                href={`/news/${entry.postSlug}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-xs border border-body-color/20 px-3 py-1.5 text-sm hover:bg-body-color/5 dark:border-white/10"
@@ -113,18 +111,18 @@ export default function AdminMatchPagesList({ pages }: AdminMatchPagesListProps)
               </Link>
             ) : null}
             <Link
-              href={`/admin/match-pages/${page.id}/edit`}
+              href={`/admin/match-pages/${entry.id}/edit`}
               className="rounded-xs border border-primary px-3 py-1.5 text-sm text-primary hover:bg-primary/10"
             >
               Редагувати
             </Link>
             <button
               type="button"
-              onClick={() => handleDelete(page)}
-              disabled={deletingId === page.id}
+              onClick={() => handleDelete(entry)}
+              disabled={deletingId === entry.id}
               className="rounded-xs border border-red-200 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 disabled:opacity-60 dark:border-red-500/30 dark:text-red-300"
             >
-              {deletingId === page.id ? "..." : "Видалити"}
+              {deletingId === entry.id ? "..." : "Видалити"}
             </button>
           </div>
         </div>

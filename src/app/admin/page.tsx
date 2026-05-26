@@ -97,9 +97,9 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 href="/admin/matches"
                 className="rounded-xs border border-body-color/10 bg-white p-5 text-left shadow-sm transition hover:border-body-color/20 hover:shadow-md dark:border-white/10 dark:bg-gray-dark"
               >
-                <div className="text-dark text-lg font-semibold dark:text-white">Адмін  перед/наступних матчів</div>
+                <div className="text-dark text-lg font-semibold dark:text-white">Адмін матчів</div>
                 <p className="text-body-color mt-1 text-sm dark:text-body-color-dark">
-                   Перед/наступні матчі та календар матчів.
+                  Наступний матч та календар майбутніх матчів.
                 </p>
               </Link>
 
@@ -109,7 +109,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               >
                 <div className="text-dark text-lg font-semibold dark:text-white">Матч-центр</div>
                 <p className="text-body-color mt-1 text-sm dark:text-body-color-dark">
-                  Сторінки матчів з відео та описом.
+                  Тур, назва матчу та прив&apos;язка до новини.
                 </p>
               </Link>
             </div>

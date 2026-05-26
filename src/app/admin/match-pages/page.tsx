@@ -43,7 +43,7 @@ export default async function AdminMatchPagesPage({ searchParams }: AdminMatchPa
         <div className="mx-auto mb-10 max-w-3xl text-center">
           <h1 className="text-dark mb-4 text-3xl font-bold dark:text-white sm:text-4xl">Матч-центр</h1>
           <p className="text-body-color dark:text-body-color-dark">
-            Сторінки матчів з описом (Markdown) та YouTube-відео.
+            Записи матч-центру: тур, назва матчу та прив&apos;язка до новини.
           </p>
         </div>
 
@@ -55,7 +55,7 @@ export default async function AdminMatchPagesPage({ searchParams }: AdminMatchPa
 
         {saved ? (
           <div className="mx-auto mb-6 max-w-3xl rounded-xs border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700 dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-200">
-            Сторінку матчу збережено.
+            Запис матч-центру збережено.
           </div>
         ) : null}
 
@@ -75,10 +75,10 @@ export default async function AdminMatchPagesPage({ searchParams }: AdminMatchPa
                     href="/admin/match-pages/new"
                     className="bg-primary hover:bg-primary/90 rounded-xs px-5 py-2.5 text-sm font-medium text-white"
                   >
-                    Створити сторінку матчу
+                    Додати запис
                   </Link>
                 </div>
-                <AdminMatchPagesList pages={pages} />
+                <AdminMatchPagesList entries={pages} />
               </div>
             </FirebaseAdminAuthGate>
           </>

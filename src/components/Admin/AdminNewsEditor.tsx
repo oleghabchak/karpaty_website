@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState, type ChangeEvent, type FormEvent } from "react";
+import NewsYoutubeEmbed from "@/components/News/NewsYoutubeEmbed";
+import { parseYoutubeVideoId } from "@/lib/youtube-utils";
 import { useRouter } from "next/navigation";
 import MarkdownContent from "@/components/News/MarkdownContent";
 import PostCard from "@/components/News/PostCard";
@@ -38,18 +40,24 @@ export default function AdminNewsEditor({
   const [authorImage, setAuthorImage] = useState(defaultAuthorImage);
   const [authorDesignation, setAuthorDesignation] = useState(defaultAuthorDesignation);
   const [bodyMarkdown, setBodyMarkdown] = useState("");
+  const [youtubeUrl, setYoutubeUrl] = useState("");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [uploadError, setUploadError] = useState("");
   const [saving, setSaving] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const canUploadToCloudinary = Boolean(cloudName && uploadPreset);
+  const youtubeVideoId = useMemo(() => parseYoutubeVideoId(youtubeUrl), [youtubeUrl]);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSubmitError(null);
     if (!title.trim() || !excerpt.trim() || !image.trim() || !bodyMarkdown.trim()) {
       setSubmitError("Заповніть усі обов'язкові поля.");
+      return;
+    }
+    if (youtubeUrl.trim() && !youtubeVideoId) {
+      setSubmitError("Некоректне посилання YouTube.");
       return;
     }
     setSaving(true);
@@ -66,6 +74,7 @@ export default function AdminNewsEditor({
           image: authorImage.trim(),
           designation: authorDesignation.trim(),
         },
+        youtubeVideoId: youtubeVideoId ?? undefined,
       });
       await revalidatePost(post.slug);
       router.push(`/admin/news?created=${post.slug}`);
@@ -127,6 +136,7 @@ export default function AdminNewsEditor({
       tags: splitTags(tags),
       publishDate: publishDate ? formatPublishDate(publishDate) : formatPublishDate(new Date()),
       publishedAt: publishDate ? new Date(publishDate).toISOString() : new Date().toISOString(),
+      youtubeVideoId: youtubeVideoId ?? undefined,
     }),
     [
       authorDesignation,
@@ -138,6 +148,7 @@ export default function AdminNewsEditor({
       publishDate,
       tags,
       title,
+      youtubeVideoId,
     ]
   );
 
@@ -313,6 +324,22 @@ export default function AdminNewsEditor({
             />
           </div>
 
+          <div>
+            <label className="text-dark mb-2 block text-sm font-medium dark:text-white">
+              Посилання YouTube (опц.)
+            </label>
+            <input
+              type="text"
+              value={youtubeUrl}
+              onChange={(event) => setYoutubeUrl(event.target.value)}
+              placeholder="https://www.youtube.com/watch?v=..."
+              className="border-stroke dark:bg-dark dark:border-white/10 dark:text-white w-full rounded-xs border px-4 py-3 outline-hidden focus:border-primary"
+            />
+            <p className="text-body-color mt-2 text-xs dark:text-body-color-dark">
+              Якщо вказано, в кінці новини з&apos;явиться компактний плеєр.
+            </p>
+          </div>
+
           {submitError ? (
             <p className="text-sm text-red-600 dark:text-red-300">{submitError}</p>
           ) : null}
@@ -348,6 +375,9 @@ export default function AdminNewsEditor({
             </p>
           </div>
           <MarkdownContent markdown={previewPost.bodyMarkdown} />
+          {previewPost.youtubeVideoId ? (
+            <NewsYoutubeEmbed videoId={previewPost.youtubeVideoId} title={previewPost.title} />
+          ) : null}
         </div>
       </div>
     </div>

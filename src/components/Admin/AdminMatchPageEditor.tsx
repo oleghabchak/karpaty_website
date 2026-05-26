@@ -1,24 +1,22 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import MarkdownContent from "@/components/News/MarkdownContent";
 import { saveMatchPage } from "@/app/admin/match-pages/actions";
-import { buildMatchPageSlugFromFields } from "@/lib/match-page-utils";
-import { parseYoutubeVideoId, getYoutubeThumbnailUrl } from "@/lib/youtube-utils";
-import { slugify } from "@/lib/post-utils";
-import type { MatchPage } from "@/types/matchPage";
+import type { MatchCenterEntry } from "@/types/matchPage";
 
-type AdminMatchPageEditorProps = {
-  initial?: MatchPage;
-  mode: "create" | "edit";
+export type PostSlugOption = {
+  slug: string;
+  title: string;
+  publishDate: string;
 };
 
-function parseOptionalString(v: string) {
-  const trimmed = v.trim();
-  return trimmed.length ? trimmed : undefined;
-}
+type AdminMatchPageEditorProps = {
+  initial?: MatchCenterEntry;
+  mode: "create" | "edit";
+  postSlugOptions: PostSlugOption[];
+};
 
 function parseOptionalNumber(v: string) {
   const trimmed = v.trim();
@@ -27,56 +25,27 @@ function parseOptionalNumber(v: string) {
   return Number.isFinite(n) ? n : undefined;
 }
 
-export default function AdminMatchPageEditor({ initial, mode }: AdminMatchPageEditorProps) {
+export default function AdminMatchPageEditor({
+  initial,
+  mode,
+  postSlugOptions,
+}: AdminMatchPageEditorProps) {
   const router = useRouter();
   const [title, setTitle] = useState(initial?.title ?? "");
-  const [slug, setSlug] = useState(initial?.slug ?? "");
-  const [slugTouched, setSlugTouched] = useState(Boolean(initial?.slug));
-  const [date, setDate] = useState(initial?.date ?? "");
-  const [time, setTime] = useState(initial?.time ?? "");
-  const [homeTeam, setHomeTeam] = useState(initial?.homeTeam ?? "");
-  const [awayTeam, setAwayTeam] = useState(initial?.awayTeam ?? "");
-  const [venue, setVenue] = useState(initial?.venue ?? "");
-  const [homeScore, setHomeScore] = useState(
-    initial?.homeScore != null ? String(initial.homeScore) : "",
-  );
-  const [awayScore, setAwayScore] = useState(
-    initial?.awayScore != null ? String(initial.awayScore) : "",
-  );
   const [tour, setTour] = useState(initial?.tour != null ? String(initial.tour) : "");
-  const [competition, setCompetition] = useState(initial?.competition ?? "");
-  const [youtubeUrl, setYoutubeUrl] = useState(initial?.youtubeVideoId ?? "");
-  const [descriptionMarkdown, setDescriptionMarkdown] = useState(initial?.descriptionMarkdown ?? "");
+  const [postSlug, setPostSlug] = useState(initial?.postSlug ?? "");
   const [published, setPublished] = useState(
     initial?.published ?? (mode === "create" ? true : false),
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const youtubeVideoId = useMemo(() => parseYoutubeVideoId(youtubeUrl), [youtubeUrl]);
-
-  useEffect(() => {
-    if (slugTouched) return;
-    if (title.trim()) {
-      setSlug(slugify(title));
-      return;
-    }
-    if (homeTeam.trim() && awayTeam.trim() && date.trim()) {
-      setSlug(buildMatchPageSlugFromFields(homeTeam, awayTeam, date));
-    }
-  }, [title, homeTeam, awayTeam, date, slugTouched]);
-
   async function handleSave() {
     setError(null);
-    if (!title.trim() || !date.trim() || !homeTeam.trim() || !awayTeam.trim()) {
-      setError("Заповніть обов'язкові поля: назва, дата, команди.");
+    if (!title.trim()) {
+      setError("Заповніть назву матчу.");
       return;
     }
-    if (youtubeUrl.trim() && !youtubeVideoId) {
-      setError("Некоректне посилання YouTube.");
-      return;
-    }
-
     setSaving(true);
     try {
       const formData = new FormData();
@@ -85,18 +54,8 @@ export default function AdminMatchPageEditor({ initial, mode }: AdminMatchPageEd
         JSON.stringify({
           id: initial?.id,
           title: title.trim(),
-          slug: slug.trim() || slugify(title),
-          date: date.trim(),
-          time: parseOptionalString(time),
-          homeTeam: homeTeam.trim(),
-          awayTeam: awayTeam.trim(),
-          venue: parseOptionalString(venue),
-          homeScore: parseOptionalNumber(homeScore),
-          awayScore: parseOptionalNumber(awayScore),
           tour: parseOptionalNumber(tour),
-          competition: parseOptionalString(competition),
-          youtubeUrl: youtubeUrl.trim(),
-          descriptionMarkdown,
+          postSlug: postSlug.trim(),
           published,
         }),
       );
@@ -105,19 +64,19 @@ export default function AdminMatchPageEditor({ initial, mode }: AdminMatchPageEd
       if (!result.ok) {
         if (result.error === "unauthorized") {
           setError("Сесія завершилась. Увійдіть ще раз.");
-        } else if (result.error === "duplicate-slug") {
-          setError("Такий slug вже існує. Оберіть інший.");
+        } else if (result.error === "post-not-found") {
+          setError("Новину не знайдено. Перевірте slug або створіть новину.");
         } else if (result.error === "invalid-payload") {
-          setError("Некоректні дані сторінки матчу.");
+          setError("Некоректні дані запису матч-центру.");
         } else {
-          setError("Не вдалося зберегти сторінку.");
+          setError("Не вдалося зберегти запис.");
         }
         return;
       }
 
       router.push(`/admin/match-pages?saved=1`);
     } catch {
-      setError("Не вдалося зберегти сторінку.");
+      setError("Не вдалося зберегти запис.");
     } finally {
       setSaving(false);
     }
@@ -127,7 +86,7 @@ export default function AdminMatchPageEditor({ initial, mode }: AdminMatchPageEd
     "border-stroke dark:bg-dark dark:border-white/10 dark:text-white w-full rounded-xs border px-3 py-2 outline-hidden focus:border-primary";
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
+    <div className="mx-auto max-w-2xl space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link
           href="/admin/match-pages"
@@ -135,14 +94,14 @@ export default function AdminMatchPageEditor({ initial, mode }: AdminMatchPageEd
         >
           ← До списку
         </Link>
-        {mode === "edit" && initial?.published ? (
+        {mode === "edit" && initial?.published && initial.postSlug ? (
           <Link
-            href={`/matches/${initial.slug}`}
+            href={`/news/${initial.postSlug}`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm text-primary hover:underline"
           >
-            Відкрити на сайті
+            Відкрити новину на сайті
           </Link>
         ) : null}
       </div>
@@ -153,168 +112,88 @@ export default function AdminMatchPageEditor({ initial, mode }: AdminMatchPageEd
         </div>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="space-y-4 rounded-xs border border-body-color/10 bg-white p-4 dark:border-white/10 dark:bg-gray-dark">
-          <h3 className="text-dark text-lg font-semibold dark:text-white">
-            {mode === "create" ? "Нова сторінка матчу" : "Редагування"}
-          </h3>
+      <div className="space-y-4 rounded-xs border border-body-color/10 bg-white p-4 dark:border-white/10 dark:bg-gray-dark">
+        <h3 className="text-dark text-lg font-semibold dark:text-white">
+          {mode === "create" ? "Новий запис матч-центру" : "Редагування"}
+        </h3>
+        <p className="text-body-color text-sm dark:text-body-color-dark">
+          Контент матчу редагується в{" "}
+          <Link href="/admin/news" className="text-primary hover:underline">
+            Адмін новин
+          </Link>
+          . Тут лише назва, тур і опційна прив&apos;язка до новини. Без новини кнопка
+          «Матч-центр» на сайті не веде на сторінку.
+        </p>
 
-          <label className="block text-sm">
-            Назва сторінки
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className={`mt-1 ${inputClass}`}
-            />
-          </label>
+        <label className="block text-sm">
+          Назва матчу
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className={`mt-1 ${inputClass}`}
+          />
+        </label>
 
-          <label className="block text-sm">
-            Slug (URL)
-            <input
-              type="text"
-              value={slug}
-              onChange={(e) => {
-                setSlugTouched(true);
-                setSlug(e.target.value);
-              }}
-              className={`mt-1 ${inputClass}`}
-            />
-          </label>
+        <label className="block text-sm">
+          Тур (опц.)
+          <input
+            type="number"
+            value={tour}
+            onChange={(e) => setTour(e.target.value)}
+            className={`mt-1 ${inputClass}`}
+          />
+        </label>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <label className="text-sm">
-              Дата
-              <input type="text" value={date} onChange={(e) => setDate(e.target.value)} className={`mt-1 ${inputClass}`} />
-            </label>
-            <label className="text-sm">
-              Час (опц.)
-              <input type="text" value={time} onChange={(e) => setTime(e.target.value)} className={`mt-1 ${inputClass}`} />
-            </label>
-            <label className="text-sm">
-              Домашня команда
-              <input
-                type="text"
-                value={homeTeam}
-                onChange={(e) => setHomeTeam(e.target.value)}
-                className={`mt-1 ${inputClass}`}
-              />
-            </label>
-            <label className="text-sm">
-              Гостьова команда
-              <input
-                type="text"
-                value={awayTeam}
-                onChange={(e) => setAwayTeam(e.target.value)}
-                className={`mt-1 ${inputClass}`}
-              />
-            </label>
-            <label className="text-sm">
-              Рахунок (дім.)
-              <input
-                type="number"
-                value={homeScore}
-                onChange={(e) => setHomeScore(e.target.value)}
-                className={`mt-1 ${inputClass}`}
-              />
-            </label>
-            <label className="text-sm">
-              Рахунок (гості)
-              <input
-                type="number"
-                value={awayScore}
-                onChange={(e) => setAwayScore(e.target.value)}
-                className={`mt-1 ${inputClass}`}
-              />
-            </label>
-            <label className="text-sm">
-              Тур (опц.)
-              <input type="number" value={tour} onChange={(e) => setTour(e.target.value)} className={`mt-1 ${inputClass}`} />
-            </label>
-            <label className="text-sm">
-              Змагання (опц.)
-              <input
-                type="text"
-                value={competition}
-                onChange={(e) => setCompetition(e.target.value)}
-                className={`mt-1 ${inputClass}`}
-              />
-            </label>
-            <label className="text-sm sm:col-span-2">
-              Місце (опц.)
-              <input type="text" value={venue} onChange={(e) => setVenue(e.target.value)} className={`mt-1 ${inputClass}`} />
-            </label>
-          </div>
-
-          <label className="block text-sm">
-            YouTube (URL або ID)
-            <input
-              type="text"
-              value={youtubeUrl}
-              onChange={(e) => setYoutubeUrl(e.target.value)}
-              placeholder="https://www.youtube.com/watch?v=..."
-              className={`mt-1 ${inputClass}`}
-            />
-          </label>
-          {youtubeVideoId ? (
-            <p className="text-body-color text-xs dark:text-body-color-dark">
-              ID: {youtubeVideoId}
+        <label className="block text-sm">
+          Новина
+          {postSlugOptions.length === 0 ? (
+            <p className="text-body-color mt-2 text-xs dark:text-body-color-dark">
+              Немає новин.{" "}
+              <Link href="/admin/news" className="text-primary hover:underline">
+                Створити новину
+              </Link>
             </p>
-          ) : null}
-
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={published}
-              onChange={(e) => setPublished(e.target.checked)}
-              className="h-4 w-4 rounded border-body-color/20"
-            />
-            Опубліковано (видно на сайті)
-          </label>
-
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={saving}
-            className="bg-primary hover:bg-primary/90 rounded-xs px-6 py-3 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            {saving ? "Збереження..." : "Зберегти"}
-          </button>
-        </div>
-
-        <div className="space-y-4">
-          <label className="block text-sm">
-            Опис (Markdown)
-            <textarea
-              value={descriptionMarkdown}
-              onChange={(e) => setDescriptionMarkdown(e.target.value)}
-              rows={14}
+          ) : (
+            <select
+              value={postSlug}
+              onChange={(e) => setPostSlug(e.target.value)}
               className={`mt-1 ${inputClass}`}
-            />
-          </label>
+            >
+              <option value="">— не прив&apos;язано —</option>
+              {postSlugOptions.map((p) => (
+                <option key={p.slug} value={p.slug}>
+                  {p.title} · {p.publishDate}
+                </option>
+              ))}
+            </select>
+          )}
+        </label>
 
-          <div className="rounded-xs border border-body-color/10 bg-white p-4 dark:border-white/10 dark:bg-gray-dark">
-            <p className="text-body-color mb-3 text-xs font-medium uppercase tracking-wide dark:text-body-color-dark">
-              Прев&apos;ю опису
-            </p>
-            {descriptionMarkdown.trim() ? (
-              <MarkdownContent markdown={descriptionMarkdown} />
-            ) : (
-              <p className="text-body-color text-sm dark:text-body-color-dark">Опис порожній.</p>
-            )}
-          </div>
+        {postSlug ? (
+          <p className="text-body-color text-xs dark:text-body-color-dark">
+            Посилання: /news/{postSlug}
+          </p>
+        ) : null}
 
-          {youtubeVideoId ? (
-            <div className="overflow-hidden rounded-xs border border-body-color/10 dark:border-white/10">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={getYoutubeThumbnailUrl(youtubeVideoId)}
-                alt="YouTube preview"
-                className="aspect-video w-full object-cover"
-              />
-            </div>
-          ) : null}
-        </div>
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={published}
+            onChange={(e) => setPublished(e.target.checked)}
+            className="h-4 w-4 rounded border-body-color/20"
+          />
+          Опубліковано (видно в списку матч-центру)
+        </label>
+
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={saving}
+          className="bg-primary hover:bg-primary/90 rounded-xs px-6 py-3 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-70"
+        >
+          {saving ? "Збереження..." : "Зберегти"}
+        </button>
       </div>
     </div>
   );

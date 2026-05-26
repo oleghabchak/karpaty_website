@@ -9,12 +9,5 @@ export const nextMatch: Match = {
   competition: "Контрольний матч",
 };
 
-export const lastMatch: Match = {
-  id: 0,
-  date: "",
-  homeTeam: "",
-  awayTeam: "",
-};
-
 export const upcomingMatches: Match[] = [
 ];

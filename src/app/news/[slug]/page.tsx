@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Breadcrumb from "@/components/Common/Breadcrumb";
 import MarkdownContent from "@/components/News/MarkdownContent";
+import NewsYoutubeEmbed from "@/components/News/NewsYoutubeEmbed";
 import { getPostBySlugServer } from "@/lib/posts-server";
 import { buildPageMetadata } from "@/lib/seo";
 
@@ -59,6 +60,9 @@ export default async function NewsPostPage({ params }: NewsPostPageProps) {
 
             <article className="shadow-three dark:bg-dark rounded-xs bg-white p-6 sm:p-8">
               <MarkdownContent markdown={post.bodyMarkdown} />
+              {post.youtubeVideoId ? (
+                <NewsYoutubeEmbed videoId={post.youtubeVideoId} title={post.title} />
+              ) : null}
             </article>
           </div>
         </div>

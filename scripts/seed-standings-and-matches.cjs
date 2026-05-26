@@ -22,9 +22,6 @@ async function main() {
     awayTeam: "Уличне",
   };
 
-  const lastMatch = {
-  };
-
   const upcomingMatches = [
     { id: 3, date: "10.05.2026", time: "17:00", homeTeam: "Стебник", awayTeam: "Уличне" },
  
@@ -45,7 +42,6 @@ async function main() {
     .set(
       {
         nextMatch,
-        lastMatch,
         upcomingMatches,
       },
       { merge: true }

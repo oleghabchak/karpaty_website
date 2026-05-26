@@ -3,14 +3,13 @@ import AdminMatchesEditor from "@/components/Admin/AdminMatchesEditor";
 import AdminNavBar from "@/components/Admin/AdminNavBar";
 import { getAdminSecret, isAdminAuthenticated } from "@/lib/admin-session";
 import { getMatchesFeatured } from "@/lib/matches";
-import { getAllMatchPagesForAdmin } from "@/lib/match-pages";
-import { sortMatchPagesByRecency } from "@/lib/match-page-utils";
+import { getLatestPostsServer } from "@/lib/posts-server";
 import { loginAdminMatches } from "./actions";
 import FirebaseAdminAuthGate from "@/components/Admin/FirebaseAdminAuthGate";
 
 export const metadata: Metadata = {
   title: "Адмін матчів | ФК «Уличне»",
-  description: "Службова сторінка для редагування prev/next та календару матчів (Firebase).",
+  description: "Службова сторінка для редагування наступного матчу та календаря (Firebase).",
 };
 
 export const dynamic = "force-dynamic";
@@ -40,20 +39,11 @@ export default async function AdminMatchesPage({ searchParams }: AdminMatchesPag
   const isAuthenticated = await isAdminAuthenticated();
 
   const featured = await getMatchesFeatured();
-  const matchPages = isAuthenticated ? await getAllMatchPagesForAdmin() : [];
-  const matchPageSlugOptions = sortMatchPagesByRecency(matchPages).map((p) => ({
+  const posts = isAuthenticated ? await getLatestPostsServer(200) : [];
+  const postSlugOptions = posts.map((p) => ({
     slug: p.slug,
     title: p.title,
-    date: p.date,
-    time: p.time,
-    homeTeam: p.homeTeam,
-    awayTeam: p.awayTeam,
-    homeScore: p.homeScore,
-    awayScore: p.awayScore,
-    venue: p.venue,
-    tour: p.tour,
-    competition: p.competition,
-    youtubeVideoId: p.youtubeVideoId,
+    publishDate: p.publishDate,
   }));
 
   return (
@@ -64,7 +54,7 @@ export default async function AdminMatchesPage({ searchParams }: AdminMatchesPag
             Адмін матчів
           </h1>
           <p className="text-body-color dark:text-body-color-dark">
-            Редагуйте `prev/next` та список майбутніх матчів. Зміни збережуться у Firestore.
+            Редагуйте наступний матч та список майбутніх матчів. Зміни збережуться у Firestore.
           </p>
         </div>
 
@@ -100,10 +90,7 @@ export default async function AdminMatchesPage({ searchParams }: AdminMatchesPag
             <AdminNavBar />
 
             <FirebaseAdminAuthGate hideFirebaseSignOut>
-              <AdminMatchesEditor
-                initialFeatured={featured}
-                matchPageSlugOptions={matchPageSlugOptions}
-              />
+              <AdminMatchesEditor initialFeatured={featured} postSlugOptions={postSlugOptions} />
             </FirebaseAdminAuthGate>
           </>
         ) : (
@@ -139,4 +126,3 @@ export default async function AdminMatchesPage({ searchParams }: AdminMatchesPag
     </section>
   );
 }
-

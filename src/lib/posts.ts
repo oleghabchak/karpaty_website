@@ -87,6 +87,10 @@ function mapDocToPost(id: string, data: DocumentData): Post {
     publishedAt,
     createdAt: timestampToIso(data.createdAt),
     updatedAt: timestampToIso(data.updatedAt),
+    youtubeVideoId:
+      typeof data.youtubeVideoId === "string" && data.youtubeVideoId.trim()
+        ? data.youtubeVideoId.trim()
+        : undefined,
   };
 }
 
@@ -351,6 +355,7 @@ export async function createPost(input: CreatePostInput) {
     publishedAt,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
+    ...(input.youtubeVideoId ? { youtubeVideoId: input.youtubeVideoId } : {}),
   };
 
   await setDoc(doc(db, POSTS_COLLECTION, slug), post);
@@ -394,6 +399,7 @@ export async function createPostClient(input: CreatePostInput): Promise<Post> {
     publishedAt,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
+    ...(input.youtubeVideoId ? { youtubeVideoId: input.youtubeVideoId } : {}),
   };
 
   await setDoc(doc(db, POSTS_COLLECTION, slug), post);

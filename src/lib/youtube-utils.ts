@@ -24,14 +24,12 @@ export function parseYoutubeVideoId(input: string): string | null {
       }
 
       const parts = url.pathname.split("/").filter(Boolean);
-      const embedIndex = parts.indexOf("embed");
-      if (embedIndex >= 0 && parts[embedIndex + 1] && YOUTUBE_ID_RE.test(parts[embedIndex + 1])) {
-        return parts[embedIndex + 1];
-      }
-
-      const shortsIndex = parts.indexOf("shorts");
-      if (shortsIndex >= 0 && parts[shortsIndex + 1] && YOUTUBE_ID_RE.test(parts[shortsIndex + 1])) {
-        return parts[shortsIndex + 1];
+      for (const segment of ["embed", "live", "shorts", "v"] as const) {
+        const index = parts.indexOf(segment);
+        const id = index >= 0 ? parts[index + 1] : undefined;
+        if (id && YOUTUBE_ID_RE.test(id)) {
+          return id;
+        }
       }
     }
   } catch {

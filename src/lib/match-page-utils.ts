@@ -1,28 +1,23 @@
-import { slugify } from "./post-utils";
-import type { MatchPage } from "@/types/matchPage";
+import type { MatchCenterEntry } from "@/types/matchPage";
 
-export function buildMatchPageSlugFromFields(homeTeam: string, awayTeam: string, date: string) {
-  const base = `${homeTeam} vs ${awayTeam} ${date}`.trim();
-  return slugify(base);
-}
-
-/** Parses common UA date strings like 10.05.2026 for sorting. */
-export function parseMatchDateSortKey(date: string): number {
-  const trimmed = date.trim();
-  const dotted = trimmed.match(/^(\d{1,2})[./](\d{1,2})[./](\d{4})$/);
-  if (dotted) {
-    const [, d, m, y] = dotted;
-    const ts = new Date(Number(y), Number(m) - 1, Number(d)).getTime();
-    return Number.isFinite(ts) ? ts : 0;
-  }
-  const iso = Date.parse(trimmed);
-  return Number.isFinite(iso) ? iso : 0;
-}
-
-export function sortMatchPagesByRecency(pages: MatchPage[]) {
-  return [...pages].sort((a, b) => {
-    const dateDiff = parseMatchDateSortKey(b.date) - parseMatchDateSortKey(a.date);
-    if (dateDiff !== 0) return dateDiff;
+/** Публічний список «Останні матчі»: від більшого туру до меншого. */
+export function sortMatchCenterEntriesByTourDesc(entries: MatchCenterEntry[]) {
+  return [...entries].sort((a, b) => {
+    if (a.tour == null && b.tour == null) {
+      return b.updatedAt.localeCompare(a.updatedAt);
+    }
+    if (a.tour == null) return 1;
+    if (b.tour == null) return -1;
+    const tourDiff = b.tour - a.tour;
+    if (tourDiff !== 0) return tourDiff;
     return b.updatedAt.localeCompare(a.updatedAt);
   });
 }
+
+/** @deprecated Use sortMatchCenterEntriesByTourDesc for public lists */
+export function sortMatchCenterEntriesByRecency(entries: MatchCenterEntry[]) {
+  return sortMatchCenterEntriesByTourDesc(entries);
+}
+
+/** @deprecated Use sortMatchCenterEntriesByTourDesc */
+export const sortMatchPagesByRecency = sortMatchCenterEntriesByTourDesc;

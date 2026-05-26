@@ -1,22 +1,18 @@
-export type MatchPage = {
+export type MatchCenterEntry = {
   id: string;
-  slug: string;
   title: string;
-  date: string;
-  time?: string;
-  homeTeam: string;
-  awayTeam: string;
-  venue?: string;
-  homeScore?: number;
-  awayScore?: number;
   tour?: number;
-  competition?: string;
-  descriptionMarkdown: string;
-  youtubeVideoId?: string;
+  postSlug?: string;
   published: boolean;
   updatedAt: string;
 };
 
-export type MatchPageInput = Omit<MatchPage, "id" | "updatedAt"> & {
+export type MatchCenterEntryInput = Omit<MatchCenterEntry, "id" | "updatedAt"> & {
   id?: string;
 };
+
+/** @deprecated Use MatchCenterEntry */
+export type MatchPage = MatchCenterEntry;
+
+/** @deprecated Use MatchCenterEntryInput */
+export type MatchPageInput = MatchCenterEntryInput;

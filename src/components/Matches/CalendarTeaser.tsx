@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getUpcomingMatches } from "@/lib/matches";
+import MatchCenterLink from "@/components/Matches/MatchCenterLink";
 
 const CalendarTeaser = async () => {
   const upcomingMatches = await getUpcomingMatches();
@@ -33,12 +34,12 @@ const CalendarTeaser = async () => {
               <span className="font-medium text-black dark:text-white">
                 «{m.homeTeam}» – «{m.awayTeam}»
               </span>
-              <Link
-                href={m.matchPageSlug ? `/matches/${m.matchPageSlug}` : "/matches"}
+              <MatchCenterLink
+                postSlug={m.postSlug}
                 className="text-sm text-primary hover:underline"
               >
                 Переглянути
-              </Link>
+              </MatchCenterLink>
             </li>
           ))}
         </ul>

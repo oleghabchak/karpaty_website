@@ -1,5 +1,4 @@
 import { MetadataRoute } from "next";
-import { getPublishedMatchPages } from "@/lib/match-pages";
 import { getLatestPostsServer } from "@/lib/posts-server";
 import { absoluteUrl, getSiteUrl } from "@/lib/seo";
 
@@ -30,7 +29,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   let newsRoutes: MetadataRoute.Sitemap = [];
-  let matchRoutes: MetadataRoute.Sitemap = [];
 
   try {
     const posts = await getLatestPostsServer(500);
@@ -44,17 +42,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     newsRoutes = [];
   }
 
-  try {
-    const matchPages = await getPublishedMatchPages();
-    matchRoutes = matchPages.map((page) => ({
-      url: absoluteUrl(`/matches/${page.slug}`),
-      lastModified: parseLastModified(page.updatedAt ?? page.date),
-      changeFrequency: "weekly" as const,
-      priority: 0.75,
-    }));
-  } catch {
-    matchRoutes = [];
-  }
-
-  return [...staticRoutes, ...newsRoutes, ...matchRoutes];
+  return [...staticRoutes, ...newsRoutes];
 }

@@ -2,17 +2,16 @@ import { deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
 import { unstable_noStore as noStore } from "next/cache";
 import { db, isFirebaseConfigured } from "./firebase";
 import { getAdminFirestore } from "./firebaseAdminServer";
-import { lastMatch, nextMatch, upcomingMatches } from "@/data/matchesData";
+import { nextMatch, upcomingMatches } from "@/data/matchesData";
 import type { Match } from "@/types/match";
 
 export const MATCHES_COLLECTION = "matches";
 export const MATCHES_DOC_ID = "main";
 
-const defaultFeatured: MatchesFeaturedDoc = { nextMatch, lastMatch, upcomingMatches };
+const defaultFeatured: MatchesFeaturedDoc = { nextMatch, upcomingMatches };
 
 export type MatchesFeaturedDoc = {
   nextMatch: Match;
-  lastMatch: Match;
   upcomingMatches: Match[];
 };
 
@@ -46,11 +45,13 @@ function mapMatch(input: unknown): Match | null {
   const venue = typeof m.venue === "string" ? m.venue : undefined;
   const tour = typeof m.tour === "number" && Number.isFinite(m.tour) ? m.tour : m.tour != null ? Number(m.tour) : undefined;
   const competition = typeof m.competition === "string" ? m.competition : undefined;
-  const matchPageSlug = typeof m.matchPageSlug === "string" ? m.matchPageSlug.trim() : undefined;
-  const youtubeVideoId =
-    typeof m.youtubeVideoId === "string" && m.youtubeVideoId.trim()
-      ? m.youtubeVideoId.trim()
-      : undefined;
+  const postSlugRaw =
+    typeof m.postSlug === "string"
+      ? m.postSlug.trim()
+      : typeof m.matchPageSlug === "string"
+        ? m.matchPageSlug.trim()
+        : "";
+  const postSlug = postSlugRaw.length ? postSlugRaw : undefined;
 
   const homeScore =
     typeof m.homeScore === "number" && Number.isFinite(m.homeScore)
@@ -79,8 +80,7 @@ function mapMatch(input: unknown): Match | null {
     awayScore,
     tour,
     competition,
-    matchPageSlug: matchPageSlug || undefined,
-    youtubeVideoId,
+    postSlug,
   };
 }
 
@@ -97,12 +97,10 @@ function mapMatchesArray(input: unknown): Match[] | null {
 
 function mapFeaturedDoc(data: Partial<MatchesFeaturedDoc> | undefined): MatchesFeaturedDoc | null {
   const mappedNext = mapMatch(data?.nextMatch);
-  const mappedLast = mapMatch(data?.lastMatch);
   const mappedUpcoming = mapMatchesArray(data?.upcomingMatches);
-  if (!mappedNext || !mappedLast || !mappedUpcoming) return null;
+  if (!mappedNext || !mappedUpcoming) return null;
   return {
     nextMatch: mappedNext,
-    lastMatch: mappedLast,
     upcomingMatches: mappedUpcoming,
   };
 }

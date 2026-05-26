@@ -4,7 +4,6 @@ import FriendlyMatchesTeaser from "@/components/Matches/FriendlyMatchesTeaser";
 import CalendarTeaser from "@/components/Matches/CalendarTeaser";
 import NextMatch from "@/components/Matches/NextMatch";
 import { buildPageMetadata } from "@/lib/seo";
-import LastMatch from "@/components/Matches/LastMatch";
 import MatchPagesList from "@/components/Matches/MatchPagesList";
 
 export const metadata = buildPageMetadata({
@@ -22,7 +21,6 @@ export default function MatchesPage() {
         description="Календар матчів, результати та турнірна таблиця."
       />
       <NextMatch />
-      <LastMatch />
       <MatchPagesList />
       <section id="table">
         <TableTeaser />
