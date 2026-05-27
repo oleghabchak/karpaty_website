@@ -3,10 +3,11 @@
 import { useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 import NewsYoutubeEmbed from "@/components/News/NewsYoutubeEmbed";
 import { parseYoutubeVideoId } from "@/lib/youtube-utils";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import MarkdownContent from "@/components/News/MarkdownContent";
 import PostCard from "@/components/News/PostCard";
-import { createPostClient } from "@/lib/posts";
+import { createPostClient, updatePostClient } from "@/lib/posts";
 import { revalidatePost } from "@/app/admin/news/actions";
 import {
   insertImagesBetweenParagraphs,
@@ -16,7 +17,9 @@ import { formatPublishDate, normalizeGoogleDriveImageUrl, splitTags } from "@/li
 import type { Post } from "@/types/post";
 
 type AdminNewsEditorProps = {
-  createdSlug?: string;
+  mode: "create" | "edit";
+  slug?: string;
+  initial?: Post;
   cloudName?: string;
   uploadPreset?: string;
 };
@@ -25,22 +28,67 @@ const defaultAuthorName = "Прес-служба ФК Уличне";
 const defaultAuthorImage = "/teamLogo/logo_noBG.png";
 const defaultAuthorDesignation = "Офіційно";
 
+function toDateInputValue(iso?: string) {
+  if (!iso) return "";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toISOString().slice(0, 10);
+}
+
+function youtubeUrlFromVideoId(videoId?: string) {
+  return videoId ? `https://www.youtube.com/watch?v=${videoId}` : "";
+}
+
+function buildPostInput(
+  title: string,
+  excerpt: string,
+  image: string,
+  bodyMarkdown: string,
+  tags: string,
+  publishDate: string,
+  authorName: string,
+  authorImage: string,
+  authorDesignation: string,
+  youtubeVideoId: string | null,
+) {
+  return {
+    title: title.trim(),
+    excerpt: excerpt.trim(),
+    image: image.trim(),
+    bodyMarkdown: bodyMarkdown.trim(),
+    tags: splitTags(tags),
+    publishDate: publishDate || undefined,
+    author: {
+      name: authorName.trim(),
+      image: authorImage.trim(),
+      designation: authorDesignation.trim(),
+    },
+    youtubeVideoId: youtubeVideoId ?? undefined,
+  };
+}
+
 export default function AdminNewsEditor({
-  createdSlug,
+  mode,
+  slug,
+  initial,
   cloudName,
   uploadPreset,
 }: AdminNewsEditorProps) {
   const router = useRouter();
-  const [title, setTitle] = useState("");
-  const [excerpt, setExcerpt] = useState("");
-  const [image, setImage] = useState("");
-  const [tags, setTags] = useState("Новини");
-  const [publishDate, setPublishDate] = useState("");
-  const [authorName, setAuthorName] = useState(defaultAuthorName);
-  const [authorImage, setAuthorImage] = useState(defaultAuthorImage);
-  const [authorDesignation, setAuthorDesignation] = useState(defaultAuthorDesignation);
-  const [bodyMarkdown, setBodyMarkdown] = useState("");
-  const [youtubeUrl, setYoutubeUrl] = useState("");
+  const isEdit = mode === "edit";
+
+  const [title, setTitle] = useState(initial?.title ?? "");
+  const [excerpt, setExcerpt] = useState(initial?.excerpt ?? "");
+  const [image, setImage] = useState(initial?.image ?? "");
+  const [tags, setTags] = useState(initial?.tags?.join(", ") ?? "Новини");
+  const [publishDate, setPublishDate] = useState(() => toDateInputValue(initial?.publishedAt));
+  const [authorName, setAuthorName] = useState(initial?.author.name ?? defaultAuthorName);
+  const [authorImage, setAuthorImage] = useState(initial?.author.image ?? defaultAuthorImage);
+  const [authorDesignation, setAuthorDesignation] = useState(
+    initial?.author.designation ?? defaultAuthorDesignation,
+  );
+  const [bodyMarkdown, setBodyMarkdown] = useState(initial?.bodyMarkdown ?? "");
+  const [youtubeUrl, setYoutubeUrl] = useState(() => youtubeUrlFromVideoId(initial?.youtubeVideoId));
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [uploadError, setUploadError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -48,6 +96,7 @@ export default function AdminNewsEditor({
 
   const canUploadToCloudinary = Boolean(cloudName && uploadPreset);
   const youtubeVideoId = useMemo(() => parseYoutubeVideoId(youtubeUrl), [youtubeUrl]);
+  const previewSlug = isEdit && slug ? slug : "preview-post";
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -60,27 +109,41 @@ export default function AdminNewsEditor({
       setSubmitError("Некоректне посилання YouTube.");
       return;
     }
+    if (isEdit && !slug) {
+      setSubmitError("Не вказано slug новини.");
+      return;
+    }
+
     setSaving(true);
     try {
-      const post = await createPostClient({
-        title: title.trim(),
-        excerpt: excerpt.trim(),
-        image: image.trim(),
-        bodyMarkdown: bodyMarkdown.trim(),
-        tags: splitTags(tags),
-        publishDate: publishDate || undefined,
-        author: {
-          name: authorName.trim(),
-          image: authorImage.trim(),
-          designation: authorDesignation.trim(),
-        },
-        youtubeVideoId: youtubeVideoId ?? undefined,
-      });
+      const input = buildPostInput(
+        title,
+        excerpt,
+        image,
+        bodyMarkdown,
+        tags,
+        publishDate,
+        authorName,
+        authorImage,
+        authorDesignation,
+        youtubeVideoId,
+      );
+
+      const post = isEdit
+        ? await updatePostClient(slug!, input)
+        : await createPostClient(input);
+
       await revalidatePost(post.slug);
-      router.push(`/admin/news?created=${post.slug}`);
+      router.push(
+        isEdit ? `/admin/news?updated=${post.slug}` : `/admin/news?created=${post.slug}`,
+      );
     } catch (err) {
       console.error(err);
-      setSubmitError("Не вдалося зберегти новину в Firestore. Перевірте, що ви увійшли як admin@gmail.com.");
+      setSubmitError(
+        isEdit
+          ? "Не вдалося зберегти зміни. Перевірте, що ви увійшли як admin@gmail.com."
+          : "Не вдалося зберегти новину в Firestore. Перевірте, що ви увійшли як admin@gmail.com.",
+      );
     } finally {
       setSaving(false);
     }
@@ -97,7 +160,7 @@ export default function AdminNewsEditor({
 
     try {
       const urls = await Promise.all(
-        files.map((file) => uploadImageToCloudinary(file, cloudName, uploadPreset))
+        files.map((file) => uploadImageToCloudinary(file, cloudName, uploadPreset)),
       );
 
       if (urls[0]) {
@@ -105,9 +168,7 @@ export default function AdminNewsEditor({
       }
 
       if (urls.length > 1) {
-        setBodyMarkdown((prev) =>
-          insertImagesBetweenParagraphs(prev, urls.slice(1))
-        );
+        setBodyMarkdown((prev) => insertImagesBetweenParagraphs(prev, urls.slice(1)));
       }
     } catch (error) {
       console.error(error);
@@ -120,8 +181,8 @@ export default function AdminNewsEditor({
 
   const previewPost = useMemo<Post>(
     () => ({
-      id: "preview-post",
-      slug: "preview-post",
+      id: previewSlug,
+      slug: previewSlug,
       title: title || "Назва новини",
       excerpt: excerpt || "Короткий опис новини з'явиться тут у режимі попереднього перегляду.",
       image: normalizeGoogleDriveImageUrl(image) || "/images/blog/blog-01.jpg",
@@ -145,11 +206,12 @@ export default function AdminNewsEditor({
       bodyMarkdown,
       excerpt,
       image,
+      previewSlug,
       publishDate,
       tags,
       title,
       youtubeVideoId,
-    ]
+    ],
   );
 
   return (
@@ -158,7 +220,7 @@ export default function AdminNewsEditor({
         <div className="mb-6 flex items-start justify-between gap-4">
           <div>
             <h2 className="text-dark text-2xl font-bold dark:text-white">
-              Створити новину
+              {isEdit ? "Редагувати новину" : "Створити новину"}
             </h2>
             <p className="text-body-color mt-2 text-sm dark:text-body-color-dark">
               Завантажуйте одне або кілька фото: перше — обкладинка, решта
@@ -167,17 +229,31 @@ export default function AdminNewsEditor({
             </p>
           </div>
 
-          {createdSlug ? (
-            <a
-              href={`/news/${createdSlug}`}
-              className="text-primary text-sm font-medium hover:underline"
-            >
-              Відкрити опубліковану новину
-            </a>
-          ) : null}
+          <Link
+            href="/admin/news"
+            className="text-primary shrink-0 text-sm font-medium hover:underline"
+          >
+            До списку
+          </Link>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
+          {isEdit && slug ? (
+            <div>
+              <label className="text-dark mb-2 block text-sm font-medium dark:text-white">
+                URL (slug)
+              </label>
+              <input
+                value={slug}
+                readOnly
+                className="border-stroke dark:bg-dark/50 dark:border-white/10 text-body-color w-full cursor-not-allowed rounded-xs border bg-body-color/5 px-4 py-3 font-mono text-sm dark:text-body-color-dark"
+              />
+              <p className="text-body-color mt-2 text-xs dark:text-body-color-dark">
+                Адреса новини не змінюється — посилання з матч-центру лишаються валідними.
+              </p>
+            </div>
+          ) : null}
+
           <div>
             <label className="text-dark mb-2 block text-sm font-medium dark:text-white">
               Заголовок
@@ -238,9 +314,7 @@ export default function AdminNewsEditor({
                     : "Додайте `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` і `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET` у `.env.local`."}
                 </p>
                 {uploadError ? (
-                  <p className="text-xs text-red-600 dark:text-red-300">
-                    {uploadError}
-                  </p>
+                  <p className="text-xs text-red-600 dark:text-red-300">{uploadError}</p>
                 ) : null}
               </div>
             </div>
@@ -336,7 +410,8 @@ export default function AdminNewsEditor({
               className="border-stroke dark:bg-dark dark:border-white/10 dark:text-white w-full rounded-xs border px-4 py-3 outline-hidden focus:border-primary"
             />
             <p className="text-body-color mt-2 text-xs dark:text-body-color-dark">
-              Якщо вказано, в кінці новини з&apos;явиться компактний плеєр.
+              Якщо вказано, в кінці новини з&apos;явиться компактний плеєр. Очистіть поле, щоб
+              прибрати відео.
             </p>
           </div>
 
@@ -349,7 +424,7 @@ export default function AdminNewsEditor({
             disabled={saving}
             className="bg-primary hover:bg-primary/90 rounded-xs px-6 py-3 text-sm font-medium text-white duration-300 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {saving ? "Збереження..." : "Опублікувати новину"}
+            {saving ? "Збереження..." : isEdit ? "Зберегти зміни" : "Опублікувати новину"}
           </button>
         </form>
       </div>
@@ -367,12 +442,8 @@ export default function AdminNewsEditor({
             Попередній перегляд статті
           </h3>
           <div className="mb-6 space-y-3">
-            <h2 className="text-dark text-3xl font-bold dark:text-white">
-              {previewPost.title}
-            </h2>
-            <p className="text-body-color dark:text-body-color-dark">
-              {previewPost.excerpt}
-            </p>
+            <h2 className="text-dark text-3xl font-bold dark:text-white">{previewPost.title}</h2>
+            <p className="text-body-color dark:text-body-color-dark">{previewPost.excerpt}</p>
           </div>
           <MarkdownContent markdown={previewPost.bodyMarkdown} />
           {previewPost.youtubeVideoId ? (

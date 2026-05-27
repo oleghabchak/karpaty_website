@@ -1,8 +1,8 @@
 import Link from "next/link";
+import PostMeta from "@/components/News/PostMeta";
 import type { Post } from "@/types/post";
 
 const fallbackImage = "/images/blog/blog-01.jpg";
-const fallbackAuthorImage = "/teamLogo/logo_noBG.png";
 
 export default function PostCard({ post }: { post: Post }) {
   const {
@@ -44,32 +44,7 @@ export default function PostCard({ post }: { post: Post }) {
           {excerpt}
         </p>
 
-        <div className="flex items-center">
-          <div className="border-body-color/10 mr-5 flex items-center border-r pr-5 xl:mr-3 xl:pr-3 2xl:mr-5 2xl:pr-5 dark:border-white/10">
-            <div className="mr-4">
-              <div className="h-10 w-10 overflow-hidden rounded-full">
-                <img
-                  src={author.image || fallbackAuthorImage}
-                  alt={author.name}
-                  className="h-full w-full object-cover"
-                />
-              </div>
-            </div>
-            <div className="w-full">
-              <h4 className="text-dark mb-1 text-sm font-medium dark:text-white">
-                {author.name}
-              </h4>
-              <p className="text-body-color text-xs">{author.designation}</p>
-            </div>
-          </div>
-
-          <div className="inline-block">
-            <h4 className="text-dark mb-1 text-sm font-medium dark:text-white">
-              Дата
-            </h4>
-            <p className="text-body-color text-xs">{publishDate}</p>
-          </div>
-        </div>
+        <PostMeta author={author} publishDate={publishDate} />
       </div>
     </div>
   );

@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import AdminNewsEditor from "@/components/Admin/AdminNewsEditor";
+import AdminNewsList from "@/components/Admin/AdminNewsList";
 import AdminNavBar from "@/components/Admin/AdminNavBar";
 import FirebaseAdminAuthGate from "@/components/Admin/FirebaseAdminAuthGate";
 import { getAdminSecret, isAdminAuthenticated } from "@/lib/admin-session";
+import { getLatestPostsServer } from "@/lib/posts-server";
 import { loginAdmin } from "./actions";
 
 export const metadata: Metadata = {
   title: "Адмін новин | ФК «Уличне»",
-  description: "Службова сторінка для створення новин ФК «Уличне».",
+  description: "Службова сторінка для керування новинами ФК «Уличне».",
 };
 
 export const dynamic = "force-dynamic";
@@ -34,12 +35,10 @@ export default async function AdminNewsPage({
   const params = await searchParams;
   const error = getFirstValue(params.error);
   const created = getFirstValue(params.created);
+  const updated = getFirstValue(params.updated);
   const hasSecret = Boolean(getAdminSecret());
   const isAuthenticated = await isAdminAuthenticated();
-  const cloudName =
-    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ||
-    process.env.CLOUDINARY_CLOUD_NAME;
-  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+  const posts = isAuthenticated ? await getLatestPostsServer(200) : [];
 
   return (
     <section className="relative z-10 overflow-hidden pb-16 pt-32 md:pb-20 lg:pb-28 lg:pt-[160px]">
@@ -49,8 +48,7 @@ export default async function AdminNewsPage({
             Адмін новин
           </h1>
           <p className="text-body-color dark:text-body-color-dark">
-            Створюйте новини, перевіряйте Markdown-прев&apos;ю в реальному часі та
-            публікуйте матеріали у Firestore.
+            Керуйте новинами: переглядайте список, редагуйте матеріали або створюйте нові.
           </p>
         </div>
 
@@ -69,6 +67,15 @@ export default async function AdminNewsPage({
           </div>
         ) : null}
 
+        {updated ? (
+          <div className="mx-auto mb-6 max-w-3xl rounded-xs border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700 dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-200">
+            Новину збережено.{" "}
+            <Link href={`/news/${updated}`} className="font-medium underline">
+              Переглянути на сайті
+            </Link>
+          </div>
+        ) : null}
+
         {!hasSecret ? (
           <div className="shadow-three dark:bg-dark mx-auto max-w-3xl rounded-xs bg-white p-8 text-center">
             <h2 className="text-dark mb-3 text-2xl font-semibold dark:text-white">
@@ -83,11 +90,17 @@ export default async function AdminNewsPage({
           <>
             <AdminNavBar />
             <FirebaseAdminAuthGate hideFirebaseSignOut>
-              <AdminNewsEditor
-                createdSlug={created}
-                cloudName={cloudName}
-                uploadPreset={uploadPreset}
-              />
+              <div className="mx-auto max-w-6xl">
+                <div className="mb-6 flex justify-end">
+                  <Link
+                    href="/admin/news/new"
+                    className="bg-primary hover:bg-primary/90 rounded-xs px-5 py-2.5 text-sm font-medium text-white"
+                  >
+                    Створити новину
+                  </Link>
+                </div>
+                <AdminNewsList posts={posts} />
+              </div>
             </FirebaseAdminAuthGate>
           </>
         ) : (
@@ -96,7 +109,7 @@ export default async function AdminNewsPage({
               Вхід до адмінки
             </h2>
             <p className="text-body-color dark:text-body-color-dark mb-6">
-              Введіть секретний код, щоб відкрити сторінку створення новин.
+              Введіть секретний код, щоб відкрити сторінку керування новинами.
             </p>
             <form action={loginAdmin} className="space-y-4">
               <div>

@@ -9,7 +9,7 @@ export const teamData: Player[] = [
   { id: 6, number: 6, name: "Дашко Роман Мар'янович", position: "Гравець" },
   { id: 7, number: 7, name: "Карпин Мар'ян Іванович", position: "Гравець", image: "/images/team/6.png" },
   { id: 8, number: 8, name: "Ковтко Андрій Сергійович", position: "Гравець", image: "/images/team/19.png" },
-  { id: 9, number: 9, name: "Костишин Назар Романович", position: "Гравець", image: "/images/team/20.png" },
+  { id: 9, number: 9, name: "Костишин Назар Романович", position: "Гравець / Представиник", image: "/images/team/20.png" },
   { id: 10, number: 10, name: "Коханець Іван Степанович", position: "Гравець", image: "/images/team/4.png" },
   { id: 11, number: 11, name: "Кучминда Максим Володимирович", position: "Гравець", image: "/images/team/18.png" },
   { id: 12, number: 12, name: "Наум Іван Іванович", position: "Гравець",  image: "/images/team/22.png" },
@@ -17,11 +17,12 @@ export const teamData: Player[] = [
   { id: 14, number: 14, name: "Наум Петро Іванович", position: "Гравець", image: "/images/team/16.png" },
   { id: 15, number: 15, name: "Петях Юрій Романович", position: "Гравець", image: "/images/team/17.png" },
   { id: 16, number: 16, name: "Пилипів Андрій Михайлович", position: "Гравець", image: "/images/team/15.png" },
-  { id: 17, number: 17, name: "Ригус Богдан Ігорович", position: "Гравець", image: "/images/team/8.png" },
+  { id: 17, number: 17, name: "Ригус Богдан Ігорович", position: "Гравець / Тренер", image: "/images/team/8.png" },
   { id: 18, number: 18, name: "Рогульський Максим Мар'янович", position: "Гравець", image: "/images/team/12.png" },
   { id: 19, number: 19, name: "Сирватка Денис Михайлович", position: "Гравець" , image: "/images/team/21.png"},
   { id: 20, number: 20, name: "Терлецький Іван Миронович", position: "Гравець", image: "/images/team/5.png" },
   { id: 21, number: 21, name: "Чавага Тарас Васильович", position: "Гравець", image: "/images/team/9.png" },
   { id: 22, number: 22, name: "Яворський Андрій Романович", position: "Гравець", image: "/images/team/7.png" },
+  { id: 23, name: "Лис Іван", position: "Лікар", image: "/images/team/24.png" },
 
 ];

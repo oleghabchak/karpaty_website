@@ -30,3 +30,5 @@ export type CreatePostInput = {
   author?: Partial<PostAuthor>;
   youtubeVideoId?: string;
 };
+
+export type UpdatePostInput = CreatePostInput;

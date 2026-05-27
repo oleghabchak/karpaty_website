@@ -1,11 +1,18 @@
 import Link from "next/link";
 
+type BreadcrumbParent = {
+  href: string;
+  label: string;
+};
+
 const Breadcrumb = ({
   pageName,
   description,
+  parent,
 }: {
   pageName: string;
   description: string;
+  parent?: BreadcrumbParent;
 }) => {
   return (
     <>
@@ -17,25 +24,36 @@ const Breadcrumb = ({
                 <h1 className="mb-5 text-2xl font-bold text-black dark:text-white sm:text-3xl">
                   {pageName}
                 </h1>
-                <p className="text-base font-medium leading-relaxed text-body-color">
+                <p className="text-base font-medium leading-relaxed text-body-color dark:text-body-color-dark">
                   {description}
                 </p>
               </div>
             </div>
             <div className="w-full px-4 md:w-4/12 lg:w-5/12">
               <div className="text-end">
-                <ul className="flex items-center md:justify-end">
+                <ul className="flex flex-wrap items-center justify-end gap-y-1 md:justify-end">
                   <li className="flex items-center">
                     <Link
                       href="/"
-                      className="pr-1 text-base font-medium text-body-color hover:text-primary"
+                      className="pr-1 text-base font-medium text-body-color hover:text-primary dark:text-body-color-dark"
                     >
                       Головна
                     </Link>
-                    <span className="mr-3 block h-2 w-2 rotate-45 border-r-2 border-t-2 border-body-color"></span>
+                    <span className="mr-3 block h-2 w-2 rotate-45 border-r-2 border-t-2 border-body-color dark:border-body-color-dark" />
                   </li>
-                  <li className="text-base font-medium text-primary">
-                    {pageName}
+                  {parent ? (
+                    <li className="flex items-center">
+                      <Link
+                        href={parent.href}
+                        className="pr-1 text-base font-medium text-body-color hover:text-primary dark:text-body-color-dark"
+                      >
+                        {parent.label}
+                      </Link>
+                      <span className="mr-3 block h-2 w-2 rotate-45 border-r-2 border-t-2 border-body-color dark:border-body-color-dark" />
+                    </li>
+                  ) : null}
+                  <li className="max-w-[200px] text-end text-base font-medium text-primary sm:max-w-xs">
+                    <span className="line-clamp-2">{pageName}</span>
                   </li>
                 </ul>
               </div>

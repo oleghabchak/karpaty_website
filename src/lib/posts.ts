@@ -1,5 +1,6 @@
 import {
   collection,
+  deleteField,
   doc,
   documentId,
   getDoc,
@@ -19,7 +20,7 @@ import {
   normalizeGoogleDriveImageUrl,
   slugify,
 } from "./post-utils";
-import type { CreatePostInput, Post, PostAuthor } from "@/types/post";
+import type { CreatePostInput, Post, PostAuthor, UpdatePostInput } from "@/types/post";
 
 const POSTS_COLLECTION = "posts";
 const LOG = process.env.NODE_ENV === "development" || process.env.VERCEL === "1";
@@ -389,11 +390,7 @@ export async function createPostClient(input: CreatePostInput): Promise<Post> {
     excerpt: input.excerpt.trim(),
     image: normalizeGoogleDriveImageUrl(input.image),
     bodyMarkdown: input.bodyMarkdown.trim(),
-    author: {
-      name: input.author?.name?.trim() || DEFAULT_AUTHOR.name,
-      image: normalizeGoogleDriveImageUrl(input.author?.image ?? DEFAULT_AUTHOR.image),
-      designation: input.author?.designation?.trim() || DEFAULT_AUTHOR.designation,
-    },
+    author: buildAuthorFields(input.author),
     tags: input.tags,
     publishDate: formatPublishDate(publishedAt),
     publishedAt,
@@ -408,5 +405,73 @@ export async function createPostClient(input: CreatePostInput): Promise<Post> {
     ...post,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
+  });
+}
+
+function buildAuthorFields(author?: Partial<PostAuthor>) {
+  return {
+    name: author?.name?.trim() || DEFAULT_AUTHOR.name,
+    image: normalizeGoogleDriveImageUrl(author?.image ?? DEFAULT_AUTHOR.image),
+    designation: author?.designation?.trim() || DEFAULT_AUTHOR.designation,
+  };
+}
+
+function resolvePublishedAt(inputPublishDate: string | undefined, fallbackIso: string) {
+  if (inputPublishDate) {
+    const publishDateValue = new Date(inputPublishDate);
+    if (!Number.isNaN(publishDateValue.getTime())) {
+      return publishDateValue.toISOString();
+    }
+  }
+  return fallbackIso;
+}
+
+/**
+ * Client-side post update. Must be called from the browser with an authenticated
+ * admin user (admin@gmail.com) so Firestore rules allow the write.
+ */
+export async function updatePostClient(slug: string, input: UpdatePostInput): Promise<Post> {
+  if (!isFirebaseConfigured || !db) {
+    throw new Error("Firebase is not configured for writing posts.");
+  }
+
+  const ref = doc(db, POSTS_COLLECTION, slug);
+  const existing = await getDoc(ref);
+  if (!existing.exists()) {
+    throw new Error("Post not found.");
+  }
+
+  const existingData = existing.data();
+  const existingPublishedAt = resolvePublishedAt(
+    undefined,
+    timestampToIso(existingData.publishedAt) ??
+      (typeof existingData.publishedAt === "string" ? existingData.publishedAt : undefined) ??
+      new Date().toISOString(),
+  );
+  const publishedAt = resolvePublishedAt(input.publishDate, existingPublishedAt);
+
+  const update = {
+    slug,
+    title: input.title.trim(),
+    excerpt: input.excerpt.trim(),
+    image: normalizeGoogleDriveImageUrl(input.image),
+    bodyMarkdown: input.bodyMarkdown.trim(),
+    author: buildAuthorFields(input.author),
+    tags: input.tags,
+    publishDate: formatPublishDate(publishedAt),
+    publishedAt,
+    updatedAt: serverTimestamp(),
+    youtubeVideoId: input.youtubeVideoId ? input.youtubeVideoId : deleteField(),
+  };
+
+  await setDoc(ref, update, { merge: true });
+
+  return mapDocToPost(slug, {
+    ...existingData,
+    ...update,
+    youtubeVideoId: input.youtubeVideoId,
+    createdAt: timestampToIso(existingData.createdAt),
+    updatedAt: new Date().toISOString(),
+    publishedAt,
   });
 }

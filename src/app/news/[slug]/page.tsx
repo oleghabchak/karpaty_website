@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Breadcrumb from "@/components/Common/Breadcrumb";
 import MarkdownContent from "@/components/News/MarkdownContent";
 import NewsYoutubeEmbed from "@/components/News/NewsYoutubeEmbed";
+import PostMeta from "@/components/News/PostMeta";
 import { getPostBySlugServer } from "@/lib/posts-server";
 import { buildPageMetadata } from "@/lib/seo";
 
@@ -39,12 +40,16 @@ export default async function NewsPostPage({ params }: NewsPostPageProps) {
 
   return (
     <>
-      <Breadcrumb pageName={post.title} description={post.excerpt} />
+      <Breadcrumb
+        pageName={post.title}
+        description={post.excerpt}
+        parent={{ href: "/news", label: "Новини" }}
+      />
 
       <section className="pb-16 pt-4 md:pb-20 md:pt-8">
         <div className="container">
           <div className="mx-auto max-w-4xl">
-            <div className="mb-8 overflow-hidden rounded-xs">
+            <div className="overflow-hidden rounded-xs">
               <img
                 src={post.image || "/images/blog/blog-01.jpg"}
                 alt={post.title}
@@ -52,10 +57,8 @@ export default async function NewsPostPage({ params }: NewsPostPageProps) {
               />
             </div>
 
-            <div className="mb-8 flex flex-wrap items-center gap-4 text-sm text-body-color dark:text-body-color-dark">
-              <span>{post.publishDate}</span>
-              <span>{post.author.name}</span>
-              {post.tags.length ? <span>{post.tags.join(" / ")}</span> : null}
+            <div className="shadow-three dark:bg-dark mb-8 rounded-xs bg-white p-6 sm:p-8">
+              <PostMeta author={post.author} publishDate={post.publishDate} />
             </div>
 
             <article className="shadow-three dark:bg-dark rounded-xs bg-white p-6 sm:p-8">
