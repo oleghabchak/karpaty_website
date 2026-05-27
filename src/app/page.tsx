@@ -1,6 +1,7 @@
 import ScrollUp from "@/components/Common/ScrollUp";
 import Hero from "@/components/Hero";
 import NextMatch from "@/components/Matches/NextMatch";
+import MatchPagesList from "@/components/Matches/MatchPagesList";
 import TableTeaser from "@/components/Matches/TableTeaser";
 import FriendlyMatchesTeaser from "@/components/Matches/FriendlyMatchesTeaser";
 import CalendarTeaser from "@/components/Matches/CalendarTeaser";
@@ -24,6 +25,7 @@ export default function Home() {
       <Hero />
       <NextMatch />
       <TableTeaser />
+      <MatchPagesList />
       <FriendlyMatchesTeaser />
       <NewsSection />
       <CalendarTeaser />

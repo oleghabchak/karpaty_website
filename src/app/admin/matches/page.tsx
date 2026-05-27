@@ -8,7 +8,7 @@ import { loginAdminMatches } from "./actions";
 import FirebaseAdminAuthGate from "@/components/Admin/FirebaseAdminAuthGate";
 
 export const metadata: Metadata = {
-  title: "Адмін матчів | ФК «Уличне»",
+  title: "Адмін наступного матчу | ФК «Уличне»",
   description: "Службова сторінка для редагування наступного матчу та календаря (Firebase).",
 };
 
@@ -51,7 +51,7 @@ export default async function AdminMatchesPage({ searchParams }: AdminMatchesPag
       <div className="container">
         <div className="mx-auto mb-10 max-w-3xl text-center">
           <h1 className="text-dark mb-4 text-3xl font-bold dark:text-white sm:text-4xl">
-            Адмін матчів
+            Адмін наступного матчу
           </h1>
           <p className="text-body-color dark:text-body-color-dark">
             Редагуйте наступний матч та список майбутніх матчів. Зміни збережуться у Firestore.

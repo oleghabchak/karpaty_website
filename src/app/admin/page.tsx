@@ -97,7 +97,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 href="/admin/matches"
                 className="rounded-xs border border-body-color/10 bg-white p-5 text-left shadow-sm transition hover:border-body-color/20 hover:shadow-md dark:border-white/10 dark:bg-gray-dark"
               >
-                <div className="text-dark text-lg font-semibold dark:text-white">Адмін матчів</div>
+                <div className="text-dark text-lg font-semibold dark:text-white">Адмін наступного матчу</div>
                 <p className="text-body-color mt-1 text-sm dark:text-body-color-dark">
                   Наступний матч та календар майбутніх матчів.
                 </p>

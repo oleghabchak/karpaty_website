@@ -41,12 +41,12 @@ export default function MarkdownContent({ markdown }: { markdown: string }) {
             </code>
           ),
           img: ({ src, alt }) => (
-            <figure className="mx-auto my-8 max-w-2xl">
+            <figure className="mx-auto my-6 max-w-md">
               <div className="border-stroke shadow-three overflow-hidden rounded-xs border dark:border-white/10">
                 <img
                   src={src}
                   alt={alt ?? ""}
-                  className="w-full object-cover"
+                  className="h-auto w-full"
                 />
               </div>
             </figure>
