@@ -89,11 +89,25 @@ export function absoluteUrl(path = ""): string {
   return `${base}${normalized}`;
 }
 
+const DEFAULT_OG_IMAGE_PATH = "/teamLogo/logoWhiteBG.png";
+
+/** Absolute URL for og:image / twitter:image (crawlers require https). */
+export function resolveMetadataImageUrl(image?: string): string {
+  const src = image?.trim() || DEFAULT_OG_IMAGE_PATH;
+  if (src.startsWith("http://") || src.startsWith("https://")) {
+    return src;
+  }
+  return absoluteUrl(src);
+}
+
 type BuildPageMetadataOptions = {
   title: string;
   description: string;
   path?: string;
   openGraphTitle?: string;
+  /** Hero / cover image for link previews (relative or absolute URL). */
+  image?: string;
+  imageAlt?: string;
 };
 
 export function buildPageMetadata({
@@ -101,8 +115,12 @@ export function buildPageMetadata({
   description,
   path = "/",
   openGraphTitle,
+  image,
+  imageAlt,
 }: BuildPageMetadataOptions): Metadata {
   const canonical = absoluteUrl(path);
+  const ogTitle = openGraphTitle ?? title;
+  const ogImageUrl = image ? resolveMetadataImageUrl(image) : undefined;
 
   return {
     title,
@@ -111,13 +129,25 @@ export function buildPageMetadata({
       canonical,
     },
     openGraph: {
-      title: openGraphTitle ?? title,
+      title: ogTitle,
       description,
       url: canonical,
+      ...(ogImageUrl
+        ? {
+            images: [
+              {
+                url: ogImageUrl,
+                alt: imageAlt ?? title,
+              },
+            ],
+          }
+        : {}),
     },
     twitter: {
-      title: openGraphTitle ?? title,
+      card: ogImageUrl ? "summary_large_image" : "summary",
+      title: ogTitle,
       description,
+      ...(ogImageUrl ? { images: [ogImageUrl] } : {}),
     },
   };
 }

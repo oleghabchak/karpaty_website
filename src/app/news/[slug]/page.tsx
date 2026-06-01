@@ -27,6 +27,8 @@ export async function generateMetadata({
     title: post.title,
     description: post.excerpt,
     path: `/news/${slug}`,
+    image: post.image || "/images/blog/blog-01.jpg",
+    imageAlt: post.title,
   });
 }
 
