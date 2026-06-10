@@ -50,11 +50,6 @@ export const metadata: Metadata = {
     title: DEFAULT_TITLE,
     description: DEFAULT_DESCRIPTION,
   },
-  icons: {
-    icon: "/teamLogo/logo_noBG.png",
-    shortcut: "/teamLogo/logo_noBG.png",
-    apple: "/teamLogo/logo_noBG.png",
-  },
   robots: {
     index: true,
     follow: true,
