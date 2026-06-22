@@ -74,9 +74,7 @@ export default function RootLayout({
   return (
     <html suppressHydrationWarning lang="uk">
       <head />
-      <body
-        className={`bg-[#FCFCFC] dark:bg-[#0d2818] ${inter.className}`}
-      >
+      <body className={inter.className}>
         <JsonLd />
         <LayoutClient>{children}</LayoutClient>
       </body>

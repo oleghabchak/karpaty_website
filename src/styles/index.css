@@ -5,6 +5,37 @@ layer(base);
 
 @custom-variant dark (&:is(.dark *));
 
+@theme inline {
+  --animate-aurora: aurora 60s linear infinite;
+  --animate-aurora-reverse: aurora-reverse 60s linear infinite;
+
+  @keyframes aurora {
+    from {
+      background-position:
+        50% 50%,
+        50% 50%;
+    }
+    to {
+      background-position:
+        350% 50%,
+        350% 50%;
+    }
+  }
+
+  @keyframes aurora-reverse {
+    from {
+      background-position:
+        350% 50%,
+        350% 50%;
+    }
+    to {
+      background-position:
+        50% 50%,
+        50% 50%;
+    }
+  }
+}
+
 @theme {
   --breakpoint-*: initial;
   --breakpoint-xs: 450px;
