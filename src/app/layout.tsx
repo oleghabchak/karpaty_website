@@ -1,5 +1,6 @@
 import { LayoutClient } from "@/components/LayoutClient";
 import { JsonLd } from "@/components/JsonLd";
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import {
@@ -77,6 +78,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <JsonLd />
         <LayoutClient>{children}</LayoutClient>
+        <Analytics />
       </body>
     </html>
   );
