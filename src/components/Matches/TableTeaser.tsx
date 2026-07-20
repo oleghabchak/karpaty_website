@@ -26,8 +26,8 @@ const TableTeaser = async () => {
           <table className="w-full min-w-[600px] text-left text-sm">
             <thead>
               <tr className="border-b border-body-color/10 bg-body-color/5 dark:border-white/10 dark:bg-white/5">
-                {columns.map((col) => (
-                  <th key={col} className="p-2 font-semibold text-black dark:text-white">
+                {columns.map((col, index) => (
+                  <th key={`${col}-${index}`} className="p-2 font-semibold text-black dark:text-white">
                     {col}
                   </th>
                 ))}
