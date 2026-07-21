@@ -14,6 +14,16 @@ const gallery = [
     alt: "Командне фото ФК «Уличне» сезон 2025",
     caption: "ФК «Уличне» в сезоні 2025",
   },
+  {
+    src: "/images/gallery/2023.jpg",
+    alt: "Командне фото ФК Карпати Уличне — чемпіон Дрогобицького району сезону 2023",
+    caption: "ФК Карпати Уличне — чемпіон Дрогобицького району в сезоні 2023",
+  },
+  {
+    src: "/images/gallery/2022.jpg",
+    alt: "Командне фото ФК «Уличне» сезон 2022",
+    caption: "ФК «Уличне» в сезоні 2022",
+  },
 ];
 
 export default function PhotoPage() {
@@ -26,7 +36,7 @@ export default function PhotoPage() {
       <section className="pb-16 pt-4 md:pb-20 md:pt-8">
         <div className="container">
           <ul className="grid gap-10">
-            {gallery.map((item) => (
+            {gallery.map((item, index) => (
               <li key={item.src}>
                 <figure>
                   <div className="relative aspect-[16/10] w-full overflow-hidden bg-body-color/5 dark:bg-white/5">
@@ -36,7 +46,7 @@ export default function PhotoPage() {
                       fill
                       sizes="(max-width: 768px) 100vw, 1100px"
                       className="object-cover"
-                      priority
+                      priority={index === 0}
                     />
                   </div>
                   <figcaption className="mt-4 text-center text-base font-medium text-black dark:text-white md:text-lg">
