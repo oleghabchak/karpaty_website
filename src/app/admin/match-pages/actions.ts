@@ -17,10 +17,15 @@ function getField(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
 }
 
-function parseOptionalNumber(v: string) {
-  if (!v) return undefined;
-  const n = Number(v);
-  return Number.isFinite(n) ? n : null;
+function parseOptionalTour(v: string) {
+  const trimmed = v.trim();
+  return trimmed || undefined;
+}
+
+function parsePriority(value: unknown) {
+  if (value == null || value === "") return 0;
+  const priority = Number(value);
+  return Number.isFinite(priority) ? priority : null;
 }
 
 function parseMatchCenterPayload(
@@ -37,14 +42,15 @@ function parseMatchCenterPayload(
     const postSlug = typeof p.postSlug === "string" ? p.postSlug.trim() : "";
     const published = p.published === true;
 
-    const tour = parseOptionalNumber(String(p.tour ?? "").trim());
-    if (tour === null) return null;
+    const tour = parseOptionalTour(String(p.tour ?? ""));
+    const priority = parsePriority(p.priority);
 
-    if (!title) return null;
+    if (!title || priority === null) return null;
 
     return {
       id,
       title,
+      priority,
       postSlug: postSlug || undefined,
       published,
       ...(tour == null ? {} : { tour }),

@@ -82,10 +82,11 @@ export default function AdminMatchPagesList({ entries }: AdminMatchPagesListProp
           <div>
             <div className="font-semibold text-black dark:text-white">{entry.title}</div>
             <p className="text-body-color mt-1 text-sm dark:text-body-color-dark">
-              {entry.tour != null ? `${entry.tour} тур` : "Без туру"}
+              {entry.tour ?? "Без туру"}
               {entry.postSlug ? ` · /news/${entry.postSlug}` : " · новина не привʼязана"}
             </p>
             <p className="text-body-color mt-1 text-xs dark:text-body-color-dark">
+              Пріоритет: {entry.priority} ·{" "}
               {entry.published ? "опубліковано" : "чернетка (не видно на сайті)"}
             </p>
           </div>

@@ -1,6 +1,6 @@
 import { unstable_noStore as noStore } from "next/cache";
 import { getAdminFirestore } from "./firebaseAdminServer";
-import { sortMatchCenterEntriesByTourDesc } from "./match-page-utils";
+import { sortMatchCenterEntriesByPriorityDesc } from "./match-page-utils";
 import type { MatchCenterEntry } from "@/types/matchPage";
 
 export const MATCH_PAGES_COLLECTION = "matchPages";
@@ -13,16 +13,21 @@ export function mapMatchCenterEntry(id: string, input: unknown): MatchCenterEntr
   const postSlug = typeof data.postSlug === "string" ? data.postSlug.trim() : "";
   const published = data.published === true;
   const updatedAt = typeof data.updatedAt === "string" ? data.updatedAt : "";
+  const priorityValue = Number(data.priority);
+  const priority = Number.isFinite(priorityValue) ? priorityValue : 0;
 
   const tourRaw = data.tour;
-  const tour =
-    tourRaw == null
-      ? undefined
-      : typeof tourRaw === "number" && Number.isFinite(tourRaw)
-        ? tourRaw
-        : Number.isFinite(Number(tourRaw))
-          ? Number(tourRaw)
-          : undefined;
+  let tour: string | undefined;
+  if (tourRaw == null) {
+    tour = undefined;
+  } else if (typeof tourRaw === "number" && Number.isFinite(tourRaw)) {
+    tour = String(tourRaw);
+  } else if (typeof tourRaw === "string") {
+    const trimmed = tourRaw.trim();
+    tour = trimmed || undefined;
+  } else {
+    tour = undefined;
+  }
 
   if (!title) return null;
 
@@ -30,6 +35,7 @@ export function mapMatchCenterEntry(id: string, input: unknown): MatchCenterEntr
     id,
     title,
     tour,
+    priority,
     postSlug: postSlug || undefined,
     published,
     updatedAt: updatedAt || new Date(0).toISOString(),
@@ -59,7 +65,7 @@ export async function getPublishedMatchCenterEntries(): Promise<MatchCenterEntry
 
   try {
     const all = await fetchAllMatchCenterEntriesFromAdmin();
-    return sortMatchCenterEntriesByTourDesc(all.filter((e) => e.published));
+    return sortMatchCenterEntriesByPriorityDesc(all.filter((e) => e.published));
   } catch {
     return [];
   }

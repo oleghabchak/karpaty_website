@@ -20,7 +20,7 @@ function MatchCenterMobileCard({ entry }: { entry: MatchCenterEntry }) {
         <div className="min-w-0 flex-1">
           {entry.tour != null ? (
             <span className="mb-2 inline-flex rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
-              {entry.tour} тур
+              {entry.tour}
             </span>
           ) : null}
           <p className="text-base font-semibold leading-snug text-black dark:text-white">
@@ -70,7 +70,7 @@ function MatchCenterDesktopRow({ entry }: { entry: MatchCenterEntry }) {
     <li className="flex flex-row items-center justify-between gap-3 rounded-lg border border-body-color/10 bg-white p-4 dark:border-white/10 dark:bg-gray-dark">
       <div>
         {entry.tour != null ? (
-          <p className="text-sm text-body-color dark:text-body-color-dark">{entry.tour} тур</p>
+          <p className="text-sm text-body-color dark:text-body-color-dark">{entry.tour}</p>
         ) : null}
         <p className="font-medium text-black dark:text-white">{entry.title}</p>
       </div>
@@ -91,9 +91,9 @@ const MatchPagesList = async () => {
   return (
     <section className="bg-body-color/5 py-16 dark:bg-white/5 md:py-20" id="recent-matches">
       <div className="container">
-        <h2 className="mb-8 text-2xl font-bold text-black dark:text-white md:text-3xl">
+        {/* <h2 className="mb-8 text-2xl font-bold text-black dark:text-white md:text-3xl">
           Останні матчі
-        </h2>
+        </h2> */}
 
         {entries.length === 0 ? (
           <p className="text-body-color text-sm dark:text-body-color-dark">

@@ -1,7 +1,8 @@
 export type MatchCenterEntry = {
   id: string;
   title: string;
-  tour?: number;
+  tour?: string;
+  priority: number;
   postSlug?: string;
   published: boolean;
   updatedAt: string;

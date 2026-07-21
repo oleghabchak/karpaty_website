@@ -18,11 +18,9 @@ type AdminMatchPageEditorProps = {
   postSlugOptions: PostSlugOption[];
 };
 
-function parseOptionalNumber(v: string) {
+function parseOptionalTour(v: string) {
   const trimmed = v.trim();
-  if (!trimmed) return undefined;
-  const n = Number(trimmed);
-  return Number.isFinite(n) ? n : undefined;
+  return trimmed || undefined;
 }
 
 export default function AdminMatchPageEditor({
@@ -32,7 +30,8 @@ export default function AdminMatchPageEditor({
 }: AdminMatchPageEditorProps) {
   const router = useRouter();
   const [title, setTitle] = useState(initial?.title ?? "");
-  const [tour, setTour] = useState(initial?.tour != null ? String(initial.tour) : "");
+  const [tour, setTour] = useState(initial?.tour ?? "");
+  const [priority, setPriority] = useState(String(initial?.priority ?? 0));
   const [postSlug, setPostSlug] = useState(initial?.postSlug ?? "");
   const [published, setPublished] = useState(
     initial?.published ?? (mode === "create" ? true : false),
@@ -54,7 +53,8 @@ export default function AdminMatchPageEditor({
         JSON.stringify({
           id: initial?.id,
           title: title.trim(),
-          tour: parseOptionalNumber(tour),
+          tour: parseOptionalTour(tour),
+          priority: priority === "" ? 0 : Number(priority),
           postSlug: postSlug.trim(),
           published,
         }),
@@ -138,11 +138,26 @@ export default function AdminMatchPageEditor({
         <label className="block text-sm">
           Тур (опц.)
           <input
-            type="number"
+            type="text"
             value={tour}
             onChange={(e) => setTour(e.target.value)}
+            placeholder="ТУР 1 або півфінал"
             className={`mt-1 ${inputClass}`}
           />
+        </label>
+
+        <label className="block text-sm">
+          Пріоритет у списку
+          <input
+            type="number"
+            value={priority}
+            onChange={(e) => setPriority(e.target.value)}
+            placeholder="0"
+            className={`mt-1 ${inputClass}`}
+          />
+          <span className="mt-1 block text-xs text-body-color dark:text-body-color-dark">
+            Записи з більшим номером показуються вище.
+          </span>
         </label>
 
         <label className="block text-sm">
