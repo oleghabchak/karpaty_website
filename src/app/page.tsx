@@ -1,6 +1,6 @@
 import ScrollUp from "@/components/Common/ScrollUp";
 import Hero from "@/components/Hero";
-import NextMatch from "@/components/Matches/NextMatch";
+// import NextMatch from "@/components/Matches/NextMatch"; // тимчасово прибрано з головної
 import MatchPagesList from "@/components/Matches/MatchPagesList";
 import TableTeaser from "@/components/Matches/TableTeaser";
 import FriendlyMatchesTeaser from "@/components/Matches/FriendlyMatchesTeaser";
@@ -23,7 +23,7 @@ export default function Home() {
     <>
       <ScrollUp />
       <Hero />
-      <NextMatch />
+      {/* <NextMatch /> тимчасово прибрано з головної */}
       <TableTeaser />
       <MatchPagesList />
       <FriendlyMatchesTeaser />

@@ -13,6 +13,7 @@ const menuData: Menu[] = [
     newTab: false,
     submenu: [
       { id: 111, title: "Історія клубу", path: "/history", newTab: false },
+      { id: 115, title: "Сезон весна 2026", path: "/history/season-2026", newTab: false },
       { id: 112, title: "Сезон 2025", path: "/history/season-2025", newTab: false },
       { id: 113, title: "Сезон 2024", path: "/history/season-2024", newTab: false },
       { id: 114, title: "Сезон 2023", path: "/history/season-2023", newTab: false },

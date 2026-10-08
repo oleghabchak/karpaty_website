@@ -10,6 +10,7 @@ export const metadata = buildPageMetadata({
 });
 
 const seasons = [
+  { href: "/history/season-2026", title: "Сезон весна 2026" },
   { href: "/history/season-2025", title: "Сезон 2025" },
   { href: "/history/season-2024", title: "Сезон 2024" },
   { href: "/history/season-2023", title: "Сезон 2023" },

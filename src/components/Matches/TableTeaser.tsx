@@ -10,7 +10,7 @@ const TableTeaser = async () => {
       <div className="container">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <h2 className="text-2xl font-bold text-black dark:text-white md:text-3xl">
-            Турнірна таблиця
+            Турнірна таблиця. Четверта ліга Львівської області: Група 2. Сезон-2026/2027
           </h2>
           <Link
             href="/matches#table"
@@ -34,11 +34,11 @@ const TableTeaser = async () => {
               </tr>
             </thead>
             <tbody>
-              {rows.slice(0, 8).map((row, index) => (
+              {rows.slice(0, 10).map((row, index) => (
                 <tr
                   key={`${row.team}-${index}`}
                   className={`border-b border-body-color/10 dark:border-white/10 ${
-                    row.team === "Уличне" ? "bg-primary/10 font-medium dark:bg-primary/20" : ""
+                    row.team === "СФК Уличне/Трускавець-2" ? "bg-primary/10 font-medium dark:bg-primary/20" : ""
                   }`}
                 >
                   <td className="p-2 text-body-color dark:text-body-color-dark">{row.position}</td>
