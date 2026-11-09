@@ -1,5 +1,7 @@
 import Breadcrumb from "@/components/Common/Breadcrumb";
+import { MatchCenterList } from "@/components/Matches/MatchPagesList";
 import { Metadata } from "next";
+import { MatchCenterEntry } from "@/types/matchPage";
 import { TableRow } from "@/types/table";
 
 export const metadata: Metadata = {
@@ -14,6 +16,79 @@ const season2026SpringTable: TableRow[] = [
   { position: 4, team: "ФК «Стебник»", played: 5, won: 2, draw: 0, lost: 3, goalsFor: 8, goalsAgainst: 10, points: 6 },
   { position: 5, team: "«Прикарпаття» (Старий Самбір)", played: 5, won: 2, draw: 0, lost: 3, goalsFor: 6, goalsAgainst: 11, points: 6 },
   { position: 6, team: "ФК «Легіон» (Львів/Никонковичі)", played: 5, won: 0, draw: 0, lost: 5, goalsFor: 4, goalsAgainst: 23, points: 0 },
+];
+
+const season2026SpringMatches: MatchCenterEntry[] = [
+  {
+    id: "spring-2026-qf",
+    tour: "1/4 фіналу",
+    title: 'СФК Уличне «Трускавець-2» 1-2 "Карпати" (Східницька ТГ)',
+    postSlug: "kubok-chetvertoyi-lihy-lvivshchyny-druhyy-ta-tretiy-etap",
+    priority: 8,
+    published: true,
+    updatedAt: "2026-06-01T00:00:00.000Z",
+  },
+  {
+    id: "spring-2026-pre-2",
+    tour: "Другий попередній етап",
+    title: '"Прикарпаття" (Старий Самбір) 1-4 СФК Уличне «Трускавець-2»',
+    postSlug: "kubok-chetvertoyi-lihy-lvivshchyny-druhyy-ta-tretiy-etap",
+    priority: 7,
+    published: true,
+    updatedAt: "2026-05-01T00:00:00.000Z",
+  },
+  {
+    id: "spring-2026-pre-1",
+    tour: "Перший попередній етап",
+    title: 'СФК Уличне «Трускавець-2»  7-0  ФК "Legion" (Никонковичі)',
+    postSlug: "kubok-chetvertoyi-lihy-lvivshchyny",
+    priority: 6,
+    published: true,
+    updatedAt: "2026-04-01T00:00:00.000Z",
+  },
+  {
+    id: "spring-2026-round-5",
+    tour: "5 тур",
+    title: 'СФК Уличне «Трускавець-2» 2-8 ФК "Мостиська"',
+    priority: 5,
+    published: true,
+    updatedAt: "2026-03-05T00:00:00.000Z",
+  },
+  {
+    id: "spring-2026-round-4",
+    tour: "4 тур",
+    title: "СФК Уличне «Трускавець-2» 1-4 ФК Карпати Східницька ТГ",
+    priority: 4,
+    published: true,
+    updatedAt: "2026-03-04T00:00:00.000Z",
+  },
+  {
+    id: "spring-2026-round-3",
+    tour: "3",
+    title: "СФК Уличне «Трускавець-2» – ФК «Legion» (Никонковичі) — 8:0",
+    postSlug: "holova-fyeyeriya-v-domashnikh-stinakh",
+    priority: 3,
+    published: true,
+    updatedAt: "2026-03-03T00:00:00.000Z",
+  },
+  {
+    id: "spring-2026-round-2",
+    tour: "2",
+    title: "«Прикарпаття» (Старий Самбір) 3:2 СФК Уличне «Трускавець-2»",
+    postSlug: "persha-porazka-v-staromu-sambori",
+    priority: 2,
+    published: true,
+    updatedAt: "2026-03-02T00:00:00.000Z",
+  },
+  {
+    id: "spring-2026-round-1",
+    tour: "1 тур",
+    title: "ФК Стебник 1-4 СФК Уличне «Трускавець-2»",
+    postSlug: "fk-stebnyk-fk-ulychne-truskavets-2-1-4",
+    priority: 1,
+    published: true,
+    updatedAt: "2026-03-01T00:00:00.000Z",
+  },
 ];
 
 export default function HistorySeason2026Page() {
@@ -64,6 +139,11 @@ export default function HistorySeason2026Page() {
               </tbody>
             </table>
           </div>
+
+          <h2 className="mb-6 mt-12 text-2xl font-bold text-black dark:text-white md:text-3xl">
+            Сезон весна 2026 Архів
+          </h2>
+          <MatchCenterList entries={season2026SpringMatches} />
         </div>
       </section>
     </>

@@ -85,35 +85,39 @@ function MatchCenterDesktopRow({ entry }: { entry: MatchCenterEntry }) {
   );
 }
 
+export function MatchCenterList({ entries }: { entries: MatchCenterEntry[] }) {
+  if (entries.length === 0) {
+    return (
+      <p className="text-body-color text-sm dark:text-body-color-dark">
+        Поки немає опублікованих записів матч-центру. Додайте їх у адмінці «Матч-центр».
+      </p>
+    );
+  }
+
+  return (
+    <>
+      <ul className="space-y-3 md:hidden">
+        {entries.map((entry) => (
+          <MatchCenterMobileCard key={entry.id} entry={entry} />
+        ))}
+      </ul>
+
+      <ul className="hidden space-y-4 md:block">
+        {entries.map((entry) => (
+          <MatchCenterDesktopRow key={entry.id} entry={entry} />
+        ))}
+      </ul>
+    </>
+  );
+}
+
 const MatchPagesList = async () => {
   const entries = await getPublishedMatchCenterEntries();
 
   return (
     <section className="bg-body-color/5 py-16 dark:bg-white/5 md:py-20" id="recent-matches">
       <div className="container">
-        {/* <h2 className="mb-8 text-2xl font-bold text-black dark:text-white md:text-3xl">
-          Останні матчі
-        </h2> */}
-
-        {entries.length === 0 ? (
-          <p className="text-body-color text-sm dark:text-body-color-dark">
-            Поки немає опублікованих записів матч-центру. Додайте їх у адмінці «Матч-центр».
-          </p>
-        ) : (
-          <>
-            <ul className="space-y-3 md:hidden">
-              {entries.map((entry) => (
-                <MatchCenterMobileCard key={entry.id} entry={entry} />
-              ))}
-            </ul>
-
-            <ul className="hidden space-y-4 md:block">
-              {entries.map((entry) => (
-                <MatchCenterDesktopRow key={entry.id} entry={entry} />
-              ))}
-            </ul>
-          </>
-        )}
+        <MatchCenterList entries={entries} />
       </div>
     </section>
   );
