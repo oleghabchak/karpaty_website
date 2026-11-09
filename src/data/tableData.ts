@@ -5,14 +5,14 @@ import { TableRow } from "@/types/table";
  * Четверта ліга Львівської області: Група 2. Сезон-2026/2027.
  */
 export const tableData: TableRow[] = [
-  { position: 1, team: "ФК «Рода» (Родатичі)", played: 6, won: 6, draw: 0, lost: 0, goalsFor: 17, goalsAgainst: 4, points: 18 },
-  { position: 2, team: "ФК «Хирів»", played: 6, won: 5, draw: 0, lost: 1, goalsFor: 17, goalsAgainst: 10, points: 15 },
-  { position: 3, team: "ФК «Верес» (Великолюбінська ТГ)", played: 6, won: 4, draw: 0, lost: 2, goalsFor: 14, goalsAgainst: 9, points: 12 },
-  { position: 4, team: "«Карпати» (Доброгостів)", played: 6, won: 3, draw: 1, lost: 2, goalsFor: 11, goalsAgainst: 7, points: 10 },
-  { position: 5, team: "«Ураган» (Перемишляни)", played: 6, won: 3, draw: 0, lost: 3, goalsFor: 12, goalsAgainst: 11, points: 9 },
-  { position: 6, team: "СФК Уличне/Трускавець-2", played: 6, won: 2, draw: 2, lost: 2, goalsFor: 9, goalsAgainst: 9, points: 8 },
-  { position: 7, team: "«Захід» (Бібрка)", played: 6, won: 2, draw: 0, lost: 4, goalsFor: 13, goalsAgainst: 14, points: 6 },
-  { position: 8, team: "ФК «Повстанець-Стефано» (Гринів)", played: 6, won: 2, draw: 0, lost: 4, goalsFor: 17, goalsAgainst: 21, points: 6 },
-  { position: 9, team: "ФК «Місто Комфорту» (Пустомити)", played: 6, won: 1, draw: 1, lost: 4, goalsFor: 7, goalsAgainst: 14, points: 4 },
-  { position: 10, team: "«Камула-Стріла» (Романів/Підгородище)", played: 6, won: 0, draw: 0, lost: 6, goalsFor: 4, goalsAgainst: 22, points: 0 },
+  { position: 1, team: "ФК «Рода» (Родатичі)", played: 9, won: 9, draw: 0, lost: 0, goalsFor: 31, goalsAgainst: 8, points: 27 },
+  { position: 2, team: "ФК «Хирів»", played: 9, won: 7, draw: 1, lost: 1, goalsFor: 33, goalsAgainst: 16, points: 22 },
+  { position: 3, team: "ФК «Верес» (Великолюбінська ТГ)", played: 9, won: 7, draw: 0, lost: 2, goalsFor: 25, goalsAgainst: 12, points: 21 },
+  { position: 4, team: "«Карпати» (Доброгостів)", played: 9, won: 4, draw: 2, lost: 3, goalsFor: 19, goalsAgainst: 14, points: 14 },
+  { position: 5, team: "«Ураган» (Перемишляни)", played: 9, won: 4, draw: 1, lost: 4, goalsFor: 15, goalsAgainst: 17, points: 13 },
+  { position: 6, team: "СФК Уличне/Трускавець-2", played: 9, won: 3, draw: 2, lost: 4, goalsFor: 15, goalsAgainst: 17, points: 11 },
+  { position: 7, team: "ФК «Місто Комфорту» (Пустомити)", played: 9, won: 2, draw: 3, lost: 4, goalsFor: 11, goalsAgainst: 17, points: 9 },
+  { position: 8, team: "«Захід» (Бібрка)", played: 9, won: 2, draw: 1, lost: 6, goalsFor: 20, goalsAgainst: 26, points: 7 },
+  { position: 9, team: "ФК «Повстанець-Стефано» (Гринів)", played: 9, won: 2, draw: 0, lost: 7, goalsFor: 21, goalsAgainst: 38, points: 6 },
+  { position: 10, team: "«Камула-Стріла» (Романів/Підгородище)", played: 9, won: 0, draw: 0, lost: 9, goalsFor: 10, goalsAgainst: 35, points: 0 },
 ];

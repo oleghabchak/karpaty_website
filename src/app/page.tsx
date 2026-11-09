@@ -1,8 +1,8 @@
 import ScrollUp from "@/components/Common/ScrollUp";
 import Hero from "@/components/Hero";
 // import NextMatch from "@/components/Matches/NextMatch"; // тимчасово прибрано з головної
-import MatchPagesList from "@/components/Matches/MatchPagesList";
 import TableTeaser from "@/components/Matches/TableTeaser";
+import RecentResults from "@/components/Matches/RecentResults";
 import FriendlyMatchesTeaser from "@/components/Matches/FriendlyMatchesTeaser";
 import CalendarTeaser from "@/components/Matches/CalendarTeaser";
 import NewsSection from "@/components/News";
@@ -25,7 +25,7 @@ export default function Home() {
       <Hero />
       {/* <NextMatch /> тимчасово прибрано з головної */}
       <TableTeaser />
-      <MatchPagesList />
+      <RecentResults />
       <FriendlyMatchesTeaser />
       <NewsSection />
       <CalendarTeaser />
