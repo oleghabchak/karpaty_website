@@ -10,6 +10,18 @@ export const metadata = buildPageMetadata({
 
 const gallery = [
   {
+    src: "/images/gallery/team_2026.jpg",
+    alt: "Командне фото ФК «Уличне» сезон 26/27",
+    caption: "ФК «Уличне» в сезоні 26/27",
+    aspect: "aspect-square",
+  },
+  {
+    src: "/images/gallery/team_season_2026.jpg",
+    alt: "Командне фото ФК «Уличне» сезон 2026",
+    caption: "ФК «Уличне» в сезоні 2026",
+    aspect: "aspect-[1024/664]",
+  },
+  {
     src: "/images/gallery/team_2025.JPG",
     alt: "Командне фото ФК «Уличне» сезон 2025",
     caption: "ФК «Уличне» в сезоні 2025",
@@ -39,7 +51,11 @@ export default function PhotoPage() {
             {gallery.map((item, index) => (
               <li key={item.src}>
                 <figure>
-                  <div className="relative aspect-[16/10] w-full overflow-hidden bg-body-color/5 dark:bg-white/5">
+                  <div
+                    className={`relative w-full overflow-hidden bg-body-color/5 dark:bg-white/5 ${
+                      "aspect" in item && item.aspect ? item.aspect : "aspect-[16/10]"
+                    }`}
+                  >
                     <Image
                       src={item.src}
                       alt={item.alt}
