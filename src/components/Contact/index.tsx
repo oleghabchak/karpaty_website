@@ -17,7 +17,7 @@ const Contact = () => {
               <p className="mb-12 text-base font-medium text-body-color">
                 Наша команда відповість вам якнайшвидше на електронну пошту.
               </p>
-              <form>
+              <form suppressHydrationWarning>
                 <div className="-mx-4 flex flex-wrap">
                   <div className="w-full px-4 md:w-1/2">
                     <div className="mb-8">
@@ -30,6 +30,7 @@ const Contact = () => {
                       <input
                         type="text"
                         placeholder="Введіть ваше ім'я"
+                        suppressHydrationWarning
                         className="border-stroke w-full rounded-xs border bg-[#f8f8f8] px-6 py-3 text-base text-body-color outline-hidden focus:border-primary dark:border-transparent dark:bg-[#2C303B] dark:text-body-color-dark dark:shadow-two dark:focus:border-primary dark:focus:shadow-none"
                       />
                     </div>
@@ -45,6 +46,7 @@ const Contact = () => {
                       <input
                         type="email"
                         placeholder="Введіть ваш email"
+                        suppressHydrationWarning
                         className="border-stroke w-full rounded-xs border bg-[#f8f8f8] px-6 py-3 text-base text-body-color outline-hidden focus:border-primary dark:border-transparent dark:bg-[#2C303B] dark:text-body-color-dark dark:shadow-two dark:focus:border-primary dark:focus:shadow-none"
                       />
                     </div>
@@ -61,6 +63,7 @@ const Contact = () => {
                         name="message"
                         rows={5}
                         placeholder="Введіть ваше повідомлення"
+                        suppressHydrationWarning
                         className="border-stroke w-full resize-none rounded-xs border bg-[#f8f8f8] px-6 py-3 text-base text-body-color outline-hidden focus:border-primary dark:border-transparent dark:bg-[#2C303B] dark:text-body-color-dark dark:shadow-two dark:focus:border-primary dark:focus:shadow-none"
                       ></textarea>
                     </div>

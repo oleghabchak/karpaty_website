@@ -34,15 +34,15 @@ const Footer = () => {
                     src="/images/logo/logo-2.svg"
                     alt="ФК Уличне"
                     className="w-full dark:hidden"
-                    width={140}
-                    height={30}
+                    width={180}
+                    height={32}
                   />
                   <Image
                     src="/images/logo/logo.svg"
                     alt="ФК Уличне"
                     className="hidden w-full dark:block"
-                    width={140}
-                    height={30}
+                    width={180}
+                    height={32}
                   />
                 </Link>
                 <p className="mb-9 text-base leading-relaxed text-body-color dark:text-body-color-dark">
