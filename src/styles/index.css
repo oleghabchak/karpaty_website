@@ -8,6 +8,14 @@ layer(base);
 @theme inline {
   --animate-aurora: aurora 60s linear infinite;
   --animate-aurora-reverse: aurora-reverse 60s linear infinite;
+  --animate-route-draw: route-draw 1.2s ease-out both;
+
+  /* Expects pathLength="1" and stroke-dasharray="1" on the path */
+  @keyframes route-draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+  }
 
   @keyframes aurora {
     from {
@@ -151,6 +159,103 @@ layer(base);
 @utility box {
   input#checkboxLabel:checked ~ & span {
     @apply opacity-100;
+  }
+}
+
+/*
+  Scroll-driven effects. Without animation-timeline support, or with
+  reduced motion, elements stay in their final static state.
+*/
+@utility scroll-reveal {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      animation: scroll-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 25%;
+    }
+  }
+}
+
+@utility scroll-parallax {
+  scale: 1.15;
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      animation: scroll-parallax linear both;
+      animation-timeline: view();
+    }
+  }
+}
+
+@utility scroll-hero-parallax {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: scroll()) {
+      animation: scroll-hero-parallax linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 100vh;
+    }
+  }
+}
+
+/* Fills heading text from faded to solid as it scrolls into view */
+@utility scroll-text-fill {
+  background-image: linear-gradient(
+    90deg,
+    currentColor 45%,
+    color-mix(in srgb, currentColor 22%, transparent) 55%
+  );
+  background-size: 200% 100%;
+  background-position: 0 0;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      animation: scroll-text-fill linear both;
+      animation-timeline: view();
+      animation-range: entry 30% cover 55%;
+    }
+  }
+}
+
+/* Animated open/close for <details>; instant where unsupported */
+@utility details-animated {
+  interpolate-size: allow-keywords;
+  &::details-content {
+    height: 0;
+    overflow: clip;
+    transition:
+      height 0.4s ease,
+      content-visibility 0.4s allow-discrete;
+  }
+  &[open]::details-content {
+    height: auto;
+  }
+}
+
+@keyframes scroll-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(48px);
+  }
+}
+
+@keyframes scroll-parallax {
+  from {
+    translate: 0 -7%;
+  }
+  to {
+    translate: 0 7%;
+  }
+}
+
+@keyframes scroll-hero-parallax {
+  to {
+    translate: 0 22%;
+  }
+}
+
+@keyframes scroll-text-fill {
+  from {
+    background-position: 100% 0;
   }
 }
 
