@@ -143,10 +143,10 @@ void main() {
 
   vec4 color = mix(fromColor, toColor, reveal);
 
-  // Ember glow along the burning front.
+  // Green glow along the dissolve front (brighter tint of the brand green).
   float coverage = max(fromColor.a, toColor.a);
   float burn = exp(-pow(d / width * 2.2, 2.0)) * sin(uProgress * 3.14159) * coverage;
-  color.rgb += vec3(1.0, 0.55, 0.15) * burn * 1.4;
+  color.rgb += vec3(0.2, 0.85, 0.4) * burn * 1.4;
   color.a = max(color.a, clamp(burn, 0.0, 1.0));
 
   gl_FragColor = color;
@@ -502,7 +502,7 @@ export function MorphGallery({ images, interval = 6000, className }: MorphGaller
       )}
     >
       <div
-        className="relative aspect-[4/3] w-full touch-pan-y overflow-hidden bg-body-color/5 select-none md:aspect-[16/10] dark:bg-white/5"
+        className="relative aspect-[4/3] max-h-[calc(100svh-13rem)] min-h-40 w-full touch-pan-y overflow-hidden bg-body-color/5 select-none md:aspect-[16/10] dark:bg-white/5"
         onPointerDown={handlePointerDown}
         onPointerUp={handlePointerUp}
         onPointerCancel={() => {
