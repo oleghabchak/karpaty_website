@@ -1,6 +1,6 @@
 import Breadcrumb from "@/components/Common/Breadcrumb";
 import { buildPageMetadata } from "@/lib/seo";
-import Image from "next/image";
+import { MorphGallery } from "@/components/ui/morph-gallery";
 
 export const metadata = buildPageMetadata({
   title: "Фото",
@@ -13,13 +13,11 @@ const gallery = [
     src: "/images/gallery/team_2026.jpg",
     alt: "Командне фото ФК «Уличне» сезон 26/27",
     caption: "ФК «Уличне» в сезоні 26/27",
-    aspect: "aspect-square",
   },
   {
     src: "/images/gallery/team_season_2026.jpg",
     alt: "Командне фото ФК «Уличне» сезон 2026",
     caption: "ФК «Уличне» в сезоні 2026",
-    aspect: "aspect-[1024/664]",
   },
   {
     src: "/images/gallery/team_2025.JPG",
@@ -47,31 +45,7 @@ export default function PhotoPage() {
       />
       <section className="pb-16 pt-4 md:pb-20 md:pt-8">
         <div className="container">
-          <ul className="grid gap-10">
-            {gallery.map((item, index) => (
-              <li key={item.src}>
-                <figure>
-                  <div
-                    className={`relative w-full overflow-hidden bg-body-color/5 dark:bg-white/5 ${
-                      "aspect" in item && item.aspect ? item.aspect : "aspect-[16/10]"
-                    }`}
-                  >
-                    <Image
-                      src={item.src}
-                      alt={item.alt}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 1100px"
-                      className="object-cover"
-                      priority={index === 0}
-                    />
-                  </div>
-                  <figcaption className="mt-4 text-center text-base font-medium text-black dark:text-white md:text-lg">
-                    {item.caption}
-                  </figcaption>
-                </figure>
-              </li>
-            ))}
-          </ul>
+          <MorphGallery images={gallery} />
         </div>
       </section>
     </>
