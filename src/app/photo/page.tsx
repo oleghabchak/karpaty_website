@@ -39,11 +39,7 @@ const gallery = [
 export default function PhotoPage() {
   return (
     <>
-      {/* <Breadcrumb
-        pageName="Фото"
-        description="Фотогалерея матчів та подій клубу."
-      /> */}
-      <section className="pb-16 pt-4 md:pb-20 md:pt-8">
+      <section className="pt-4 pb-16 md:pt-8 md:pb-20">
         <div className="container mt-20">
           <MorphGallery images={gallery} />
         </div>
